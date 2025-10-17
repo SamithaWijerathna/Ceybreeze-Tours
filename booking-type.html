@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Your Journey</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+    }
+    .selection-container {
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+    .option-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 20px;
+      padding: 40px 20px;
+      color: #fff;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .option-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .option-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    .option-desc {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin-top: 10px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container selection-container">
+    <h1 class="mb-5 fw-bold">✨ Plan Your Journey with CeyBreeze Tours ✨</h1>
+    <div class="row g-4 justify-content-center">
+      
+      <!-- Recommended Packages -->
+      <div class="col-md-5">
+        <div class="option-card" onclick="window.location.href='reservation.html'">
+          <img src="https://img.icons8.com/color/96/airplane-take-off.png" alt="Recommended" />
+          <div class="option-title">Move with Recommended Tour Packages</div>
+          <div class="option-desc">Choose from our curated tour packages designed by experts.</div>
+        </div>
+      </div>
+
+      <!-- Customise Own Package -->
+      <div class="col-md-5">
+        <div class="option-card" onclick="window.location.href='cus-reservation.html'">
+          <img src="https://img.icons8.com/color/96/route.png" alt="Custom" />
+          <div class="option-title">Customise Your Own Package</div>
+          <div class="option-desc">Handpick places and build your unique travel experience.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

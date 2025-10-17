@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Travel Configurator - My Bookings</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Core CSS -->
+ 
+  <!-- Custom Styles -->
+  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<style>
+ body {
+    background-color: #f1f5f9;
+    font-family: Arial, sans-serif; /* Use Arial globally */
+}
+* {
+    font-family: Arial, sans-serif !important;
+}
+  .booking-card, .newsletter-card { transition: transform 0.2s; cursor:pointer; }
+  .booking-card:hover, .newsletter-card:hover { transform: translateY(-3px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .section-header { border-bottom: 2px solid #0d6efd; padding-bottom: 5px; margin-bottom: 20px; }
+  .badge-status { font-size: 0.9rem; }
+
+  .header_section {
+  position: relative; /* instead of absolute */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background: rgba(0,0,0,0.8); /* optional, for readability */
+}
+
+.header_section .navbar .nav-link,
+.header_section .navbar-brand,
+.header_section .user_option span,
+.header_section .user_option a {
+  color: #fff !important;
+}
+
+body {
+    background-color: #f1f5f9;
+    font-family: Arial, sans-serif; /* Use Arial globally */
+}
+
+
+  .card-summary { transition: transform 0.2s; cursor:pointer; border-radius:1rem; }
+  .card-summary:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .section-header { font-weight: 600; margin-bottom: 1rem; color: #000000; }
+  .badge-status { font-size: 0.85rem; }
+  .header_section { background: #000000; padding: 0.5rem 0; color:#fff; }
+  .header_section a, .header_section span, .header_section button { color: #fff !important; }
+  .summary-icon { font-size: 2rem; opacity: 0.8; }
+  body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
+
+  /* Navbar/Header */
+  .navbar, .nav-tabs .nav-link.active { background-color: #000000 !important; }
+  .navbar .nav-link, .navbar-brand { color: #fff !important; }
+  .user-greeting { font-weight: 600; }
+
+  /* Dashboard Header */
+  .dashboard-header { margin: 30px 0; text-align: center; }
+  .welcome-heading { font-weight: 700; font-size: 2rem; color: #000000; }
+  .glow-effect {
+    font-weight: 700;
+    background: linear-gradient(90deg, #ff8a80, #b71c1c, #ff8a80);
+    background-size: 200% 200%;
+   -webkit-text-fill-color: transparent; /* required for WebKit */
+    -webkit-text-fill-color: transparent;
+    animation: glowAnim 3s ease-in-out infinite;
+  }
+  @keyframes glowAnim {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Cards */
+  .card-custom { border-radius: 1rem; transition: transform 0.3s; cursor: pointer; }
+  .card-custom:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+  .section-header { font-weight: 600; color: #0d6efd; margin-bottom: 1rem; }
+
+  .summary-icon { font-size: 2rem; opacity: 0.8; }
+
+  /* Newsletter / Booking Cards */
+  .newsletter-card, .booking-card { transition: transform 0.2s; cursor:pointer; }
+  .newsletter-card:hover, .booking-card:hover { transform: translateY(-3px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+  /* Modals */
+  .modal-header.bg-primary { background-color: #0d6efd !important; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header_section">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="index.html">ceyBreeze Tours</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="packagecatalog.html">Packages</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+        </ul>
+        <div class="user_option d-flex align-items-center">
+          <span id="user-greeting" class="me-3 user-greeting">Hi Guest</span>
+          <button id="signOutBtn" class="btn btn-outline-light btn-sm">Sign Out</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Dashboard Greeting -->
+<div class="container dashboard-header">
+<h2 class="welcome-heading"><span id="user-name">User</span> 👋</h2>
+
+  <p>Your personalized travel dashboard</p>
+</div>
+
+<div class="container-fluid py-4">
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-5">
+    <div class="col-md-3">
+      <div class="card card-custom summary-card text-center p-3">
+        <i class="bi bi-hourglass-split summary-icon text-warning"></i>
+        <h5 id="pending-count">0</h5>
+        <p>Pending Bookings</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-custom summary-card text-center p-3">
+        <i class="bi bi-check-circle summary-icon text-success"></i>
+        <h5 id="confirmed-count">0</h5>
+        <p>Confirmed Bookings</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-custom summary-card text-center p-3">
+        <i class="bi bi-clock-history summary-icon text-secondary"></i>
+        <h5 id="history-count">0</h5>
+        <p>Booking History</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-custom summary-card text-center p-3">
+        <i class="bi bi-envelope summary-icon text-primary"></i>
+        <h5 id="newsletter-count">0</h5>
+        <p>Newsletters</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletters Section -->
+  <div class="mb-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="section-header"><i class="fas fa-paper-plane"></i> Latest Newsletter</h2>
+    <div id="latest-newsletter-list"></div>
+  </div>
+
+  <!-- Pending Bookings -->
+  <div class="mb-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="section-header">Pending Bookings <span class="badge bg-warning badge-status">Pending</span></h2>
+    <div class="d-flex justify-content-end mb-3">
+      <button id="makeBookBtn" class="btn btn-success">Make a Booking</button>
+    </div>
+    <div id="receipt-output" class="row g-3"></div>
+  </div>
+
+  <!-- Confirmed Bookings -->
+  <div class="mb-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="section-header">Confirmed Bookings <span class="badge bg-success badge-status">Confirmed</span></h2>
+    <div id="confirmed-output" class="row g-3"></div>
+  </div>
+
+  <!-- Booking History -->
+  <div class="mb-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="section-header">Booking History <span class="badge bg-secondary badge-status">History</span></h2>
+    <div class="d-flex justify-content-end mb-3">
+      <button id="clearHistoryBtn" class="btn btn-danger btn-sm">Clear History</button>
+    </div>
+    <div id="history-output" class="row g-3"></div>
+  </div>
+
+  <!-- Submit Review -->
+  <div class="mb-5 p-4 bg-white rounded shadow-sm">
+    <h2 class="section-header">Submit a Review</h2>
+    <form id="reviewForm">
+      <div class="mb-3">
+        <label for="packageSelect" class="form-label">Select Package</label>
+        <select id="packageSelect" class="form-select" required></select>
+      </div>
+      <div class="mb-3">
+        <label for="rating" class="form-label">Rating</label>
+        <select id="rating" class="form-select" required>
+          <option value="">-- Select Rating --</option>
+          <option value="1">1 ⭐</option>
+          <option value="2">2 ⭐⭐</option>
+          <option value="3">3 ⭐⭐⭐</option>
+          <option value="4">4 ⭐⭐⭐⭐</option>
+          <option value="5">5 ⭐⭐⭐⭐⭐</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="reviewText" class="form-label">Review</label>
+        <textarea id="reviewText" class="form-control" rows="3" placeholder="Write your review..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Review</button>
+      <div id="reviewAlert" class="mt-2"></div>
+    </form>
+  </div>
+
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="newsletterModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title">Newsletter</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="newsletterModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="receiptModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title">Booking Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="receiptModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" id="downloadReceiptBtn" class="btn btn-outline-primary">Download Receipt</button>
+        <button type="button" id="updateBookingBtn" class="btn btn-success">Update Booking</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // Load user's confirmed bookings for review selection
+  async function loadUserPackagesForReview() {
+    if (!auth.currentUser) return;
+    const packageSelect = document.getElementById("packageSelect");
+    packageSelect.innerHTML = `<option value="">-- Choose a Package --</option>`;
+    const confirmedSnap = await db.collection("confirmedbookings").where("fullName", "==", currentUserName).get();
+    const packageIDs = new Set();
+    confirmedSnap.forEach(doc => packageIDs.add(doc.data().packageID));
+
+    for (let packageID of packageIDs) {
+      const pkgDoc = await db.collection("tourPackages").doc(packageID).get();
+      if (pkgDoc.exists) {
+        const title = pkgDoc.data().title || "Untitled Package";
+        packageSelect.innerHTML += `<option value="${packageID}">${title}</option>`;
+      }
+    }
+  }
+
+  loadUserPackagesForReview();
+
+  // Handle Review Submission
+  document.getElementById("reviewForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const packageID = document.getElementById("packageSelect").value;
+    const rating = parseInt(document.getElementById("rating").value);
+    const reviewText = document.getElementById("reviewText").value.trim();
+
+    if (!packageID || !rating || !reviewText) return;
+
+    try {
+      const packageDoc = await db.collection("tourPackages").doc(packageID).get();
+      const packageTitle = packageDoc.exists ? packageDoc.data().title : "Unknown Package";
+
+      await db.collection("reviews").add({
+        userId: auth.currentUser.uid,
+        userName: currentUserName,
+        packageID,
+        packageTitle,
+        rating,
+        reviewText,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById("reviewAlert").innerHTML = `<div class="alert alert-success">✅ Review submitted successfully!</div>`;
+      document.getElementById("reviewForm").reset();
+    } catch (err) {
+      console.error(err);
+      document.getElementById("reviewAlert").innerHTML = `<div class="alert alert-danger">❌ Failed to submit review.</div>`;
+    }
+  });
+
+
+  
+</script>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+
+
+
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  const greeting = document.getElementById("user-greeting");
+  greeting.textContent = user ? `Hi ${user.displayName || "User"}` : "Hi Guest";
+  const signOutBtn = document.getElementById("signOutBtn");
+});
+
+auth.onAuthStateChanged(user => {
+  if(user) {
+    // Show user name
+    userGreeting.textContent = `Hi ${user.displayName || "User"}`;
+    
+    // Show Sign Out button
+    signOutBtn.style.display = "inline-block";
+
+  } else {
+    userGreeting.textContent = "Hi Guest";
+    signOutBtn.style.display = "none";
+  }
+});
+
+// Sign Out function
+signOutBtn.addEventListener("click", () => {
+  auth.signOut().then(() => {
+    window.location.href = "index.html"; // Redirect after sign out
+  }).catch(err => {
+    console.error("Sign Out Error:", err);
+  });
+});
+
+// DOM Elements
+const userNameElement = document.getElementById("user-name");
+const receiptOutput = document.getElementById("receipt-output");
+const confirmedOutput = document.getElementById("confirmed-output");
+const historyOutput = document.getElementById("history-output");
+const modalBody = document.getElementById("receiptModalBody");
+const downloadBtn = document.getElementById("downloadReceiptBtn");
+const updateBtn = document.getElementById("updateBookingBtn");
+
+let currentUserName = "";
+let editingBookingId = "";
+
+// Auth state listener
+auth.onAuthStateChanged(async (user) => {
+  receiptOutput.innerHTML = "";
+  confirmedOutput.innerHTML = "";
+  historyOutput.innerHTML = "";
+
+  if (user && user.displayName) {
+    currentUserName = user.displayName;
+    userNameElement.textContent = "Hi, " + currentUserName;
+
+    async function getPackageTitle(packageID) {
+      if (!packageID) return "N/A";
+      try {
+        const packageDoc = await db.collection("tourPackages").doc(packageID).get();
+        return packageDoc.exists ? packageDoc.data().title || "N/A" : "N/A";
+      } catch { return "N/A"; }
+    }
+
+     // Load user's confirmed bookings for review selection
+  async function loadUserPackagesForReview() {
+    if (!auth.currentUser) return;
+    const packageSelect = document.getElementById("packageSelect");
+    packageSelect.innerHTML = `<option value="">-- Choose a Package --</option>`;
+    const confirmedSnap = await db.collection("confirmedbookings").where("fullName", "==", currentUserName).get();
+    const packageIDs = new Set();
+    confirmedSnap.forEach(doc => packageIDs.add(doc.data().packageID));
+
+    for (let packageID of packageIDs) {
+      const pkgDoc = await db.collection("tourPackages").doc(packageID).get();
+      if (pkgDoc.exists) {
+        const title = pkgDoc.data().title || "Untitled Package";
+        packageSelect.innerHTML += `<option value="${packageID}">${title}</option>`;
+      }
+    }
+  }
+
+  loadUserPackagesForReview();
+
+
+
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("view-map-btn")) {
+    const packageID = e.target.getAttribute("data-packageid");
+    if (!packageID) return;
+
+    // Fetch package document
+    const pkgDoc = await db.collection("tourPackages").doc(packageID).get();
+    if (!pkgDoc.exists) return alert("Package not found.");
+
+    const places = pkgDoc.data().places || []; // Array of place names
+    if (!places.length) return alert("No places found for this package.");
+
+    // Build modal content
+    let mapContent = "<div class='row'>";
+    places.forEach(place => {
+      const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyA0_yGECNbtEt24j9qz-JaBYi-wrEKe84s&q=${encodeURIComponent(place)}`;
+
+      mapContent += `
+        <div class="col-md-6 mb-3">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5>${place}</h5>
+              <iframe
+                width="100%"
+                height="300"
+                style="border:0"
+                loading="lazy"
+                allowfullscreen
+                src="${mapUrl}">
+              </iframe>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    mapContent += "</div>";
+
+    document.getElementById("mapModalBody").innerHTML = mapContent;
+    new bootstrap.Modal(document.getElementById("mapModal")).show();
+  }
+});
+
+
+
+
+// --- Pending Bookings ---
+const bookingsSnap = await db.collection("bookings")
+  .where("fullName","==",currentUserName).get();
+
+const pendingCountEl = document.getElementById("pending-count");
+const confirmedCountEl = document.getElementById("confirmed-count");
+const historyCountEl = document.getElementById("history-count");
+const newsletterCountEl = document.getElementById("newsletter-count");
+
+// Pending
+if (bookingsSnap.empty) {
+  receiptOutput.innerHTML = `<div class="alert alert-warning">No pending bookings.</div>`;
+  pendingCountEl.textContent = 0;
+} else {
+  receiptOutput.innerHTML = "";
+  bookingsSnap.forEach(doc => {
+    const data = doc.data();
+    const submittedAt = data.submittedAt?.toDate?.().toLocaleString() || "N/A";
+    const destinationTitle = data.packageName || "N/A";
+    const proceedDisabled = data.evidenceUrl ? "disabled" : "";
+    
+    receiptOutput.innerHTML += `
+      <div class="card mb-3" id="booking-${doc.id}">
+        <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <strong>Destination:</strong> ${destinationTitle}<br/>
+            <strong>Submitted At:</strong> ${submittedAt}<br/>
+            <strong>Total Cost:</strong> ${data.totalCost || 0}
+          </div>
+          <div>
+            <button class="btn btn-info btn-sm view-pending-btn" data-docid="${doc.id}">View</button>
+            <button class="btn btn-primary btn-sm proceed-payment-btn" data-docid="${doc.id}" ${proceedDisabled}>Proceed to Payment</button>
+            <button class="btn btn-danger btn-sm cancel-btn" data-docid="${doc.id}">Cancel</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  pendingCountEl.textContent = bookingsSnap.size; // ✅ Update count
+}
+
+// --- Confirmed Bookings ---
+const confirmedSnap = await db.collection("confirmedbookings")
+  .where("fullName","==",currentUserName).get();
+
+if (confirmedSnap.empty) {
+  confirmedOutput.innerHTML = `<div class="alert alert-info">No confirmed bookings.</div>`;
+  confirmedCountEl.textContent = 0;
+} else {
+  confirmedOutput.innerHTML = "";
+  confirmedSnap.forEach(doc => {
+    const data = doc.data();
+    const submittedAt = data.submittedAt?.toDate?.().toLocaleString() || "N/A";
+    const destinationTitle = data.packageName || "N/A";
+    confirmedOutput.innerHTML += `
+      <div class="card mb-3" id="confirmed-${doc.id}">
+        <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <strong>Destination:</strong> ${destinationTitle}<br/>
+            <strong>Submitted At:</strong> ${submittedAt}<br/>
+            <strong>Total Cost:</strong> ${data.totalCost || 0}
+          </div>
+          <div>
+            <button class="btn btn-info btn-sm view-receipt-btn" data-docid="${doc.id}">View Receipt</button>
+            <button class="btn btn-secondary btn-sm view-map-btn" data-packageid="${data.packageId}">View Map</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  confirmedCountEl.textContent = confirmedSnap.size; // ✅ Update count
+}
+
+// --- Booking History ---
+// If you have a 'history' collection, do the same:
+const historySnap = await db.collection("bookingHistory")
+  .where("fullName","==",currentUserName).get();
+historyCountEl.textContent = historySnap.size;
+
+// --- Newsletters ---
+const newsletterSnap = await db.collection("newsletters").get();
+newsletterCountEl.textContent = newsletterSnap.size;
+
+    // --- Click Handlers ---
+    document.addEventListener('click', async (e) => {
+      const docId = e.target.getAttribute('data-docid');
+
+      if (e.target.classList.contains('view-pending-btn')) { editingBookingId = docId; viewPendingBooking(docId); }
+      if (e.target.classList.contains('proceed-payment-btn')) { localStorage.setItem('pendingBookingId', docId); localStorage.setItem('pendingBookingUser', currentUserName); window.location.href="uploadevidence.html"; }
+      if (e.target.classList.contains('view-receipt-btn')) viewReceipt(docId,'confirmed');
+      if (e.target.classList.contains('cancel-btn')) {
+        if (!confirm("Are you sure you want to cancel this booking?")) return;
+        const bookingDoc = await db.collection('bookings').doc(docId).get();
+        if (!bookingDoc.exists) return alert("Booking not found.");
+        await db.collection('cancelledbooking').doc(docId).set(bookingDoc.data());
+        await db.collection('bookings').doc(docId).delete();
+        alert("Booking cancelled successfully.");
+        const card = document.getElementById(`booking-${docId}`);
+        if (card) card.remove();
+      }
+    });
+
+async function viewPendingBooking(docId) {
+  const docSnap = await db.collection("bookings").doc(docId).get();
+  if (!docSnap.exists) return alert("Booking not found.");
+  const data = docSnap.data();
+
+  const submittedAt = data.submittedAt?.toDate?.().toLocaleString() || "N/A";
+
+  modalBody.innerHTML = `
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Pending Booking Details</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>Full Name:</strong> ${data.fullName || "N/A"}</p>
+        <p><strong>Destination:</strong> ${data.packageName || "N/A"}</p>
+        <p><strong>Departure Date:</strong> ${data.departureDate || "N/A"}</p>
+        <p><strong>Return Date:</strong> ${data.returnDate || "N/A"}</p>
+        <p><strong>Total Days:</strong> ${data.totalDays || "N/A"}</p>
+        <hr>
+        <p><strong>Adults:</strong> ${data.adults ?? 0}</p>
+        <p><strong>Children:</strong> ${data.children ?? 0}</p>
+        <p><strong>Infants:</strong> ${data.infants ?? 0}</p>
+        <hr>
+        <p><strong>Hotel Type:</strong> ${data.hotelType || "N/A"}</p>
+        <p><strong>Vehicle:</strong> ${data.vehicleCategory || "N/A"} - ${data.vehicleType || "N/A"}</p>
+        <p><strong>Meals:</strong> ${data.mealPref || "N/A"}</p>
+        <p><strong>Special Requests:</strong> ${data.specialReq || "N/A"}</p>
+        <hr>
+        <p><strong>Total Cost:</strong> ${data.totalCost || "N/A"}</p>
+        <p><strong>Submitted At:</strong> ${submittedAt}</p>
+      </div>
+    </div>
+  `;
+
+  // Hide invoice + update buttons for pending bookings
+  downloadBtn.style.display = "none";
+  updateBtn.style.display = "none";
+
+  new bootstrap.Modal(document.getElementById("receiptModal")).show();
+}
+
+
+    async function viewReceipt(docId,type){
+      if(type!=='confirmed') return;
+      const docSnap = await db.collection("confirmedbookings").doc(docId).get();
+      if(!docSnap.exists) return alert("Booking not found.");
+      const data = docSnap.data();
+      const submittedAt = data.submittedAt?.toDate?.().toLocaleString() || "N/A";
+      const destinationTitle = await getPackageTitle(data.packageID);
+      const numAdults = data.adults||0, numChildren = data.children||0, numInfants = data.infants||0;
+      const totalTravelers = numAdults+numChildren+numInfants;
+      const totalCost = data.totalCost||0;
+      const costPerTraveler = totalTravelers>0 ? (totalCost/totalTravelers).toFixed(2) : totalCost;
+
+      const receiptHtml = `<div id="receiptContent" style="padding:40px; font-family:'Helvetica',Arial,sans-serif; background:#fff; color:#333; max-width:800px;margin:auto;border:1px solid #ddd;position:relative;">
+        <div style="position:absolute; top:40%; left:10%; font-size:100px; color:red; transform:rotate(-30deg); opacity:0.2; font-weight:bold; z-index:0;">PAID</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; position:relative; z-index:1;">
+          <div><h2 style="margin:0; color:#2E86C1;">Ceybreeze Tours</h2><p style="margin:0; color:#555;">Invoice</p></div>
+        </div>
+        <div style="margin-bottom:20px; position:relative; z-index:1;">
+          <strong>Customer Name:</strong> ${currentUserName}<br/>
+          <strong>Email:</strong> ${auth.currentUser?.email||'N/A'}<br/>
+          <strong>Booking Date:</strong> ${submittedAt}<br/>
+        </div>
+        <table style="width:100%; border-collapse:collapse; position:relative; z-index:1;">
+          <thead><tr style="background:#2E86C1; color:#fff;">
+            <th style="border:1px solid #ddd; padding:10px;">Item</th>
+            <th style="border:1px solid #ddd; padding:10px;">Adults</th>
+            <th style="border:1px solid #ddd; padding:10px;">Children</th>
+            <th style="border:1px solid #ddd; padding:10px;">Infants</th>
+            <th style="border:1px solid #ddd; padding:10px;">Qty</th>
+            <th style="border:1px solid #ddd; padding:10px;">Unit Price</th>
+            <th style="border:1px solid #ddd; padding:10px;">Total</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td style="border:1px solid #ddd; padding:10px;">${destinationTitle}</td>
+              <td style="border:1px solid #ddd; padding:10px;">${numAdults}</td>
+              <td style="border:1px solid #ddd; padding:10px;">${numChildren}</td>
+              <td style="border:1px solid #ddd; padding:10px;">${numInfants}</td>
+              <td style="border:1px solid #ddd; padding:10px;">${totalTravelers}</td>
+              <td style="border:1px solid #ddd; padding:10px;">$${costPerTraveler}</td>
+              <td style="border:1px solid #ddd; padding:10px;">$${totalCost}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:20px; text-align:right; position:relative; z-index:1;">
+          <p style="margin:0;"><strong>Subtotal:</strong> $${totalCost}</p>
+          <p style="margin:0;"><strong>Tax (0%):</strong> $0.00</p>
+          <p style="margin:0; font-size:18px;"><strong>Total:</strong> $${totalCost}</p>
+        </div>
+        <div style="text-align:center; font-size:12px; color:#555; margin-top:30px; position:relative; z-index:1;">
+          Thank you for choosing <strong>Ceybreeze Tours</strong>!<br/>
+          Contact: info@ceybreeze.com | +94 77 123 4567<br/>
+          Terms & Conditions apply.
+        </div>
+      </div>`;
+
+      modalBody.innerHTML=receiptHtml;
+      downloadBtn.style.display='inline-block'; updateBtn.style.display='none';
+      new bootstrap.Modal(document.getElementById('receiptModal')).show();
+
+      downloadBtn.onclick = () => {
+        const receiptDiv = document.getElementById("receiptContent");
+        html2canvas(receiptDiv,{scale:2}).then(canvas=>{
+          const imgData = canvas.toDataURL('image/png');
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF('p','pt','a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (canvas.height*pdfWidth)/canvas.width;
+          pdf.addImage(imgData,'PNG',0,0,pdfWidth,pdfHeight);
+          pdf.save(`Booking_Invoice_${docId}.pdf`);
+        }).catch(err=>console.error(err));
+      };
+    }
+
+    loadNewsletters();
+
+  } else {
+    userNameElement.textContent = "Hi, Guest";
+    receiptOutput.innerHTML = `<div class="alert alert-info">Please log in to view your bookings.</div>`;
+    confirmedOutput.innerHTML = "";
+  }
+});
+
+// --- Navigation Buttons ---
+document.getElementById("makeBookBtn").addEventListener("click",()=>{ if(currentUserName) window.location.href="booking-type.html"; else alert("Please log in to make a booking."); });
+document.getElementById("profileBtn").addEventListener("click",()=>{ window.location.href='profile.html'; });
+
+// --- Load Newsletters ---
+async function loadNewsletters(){
+  const listDiv = document.getElementById("latest-newsletter-list");
+  listDiv.innerHTML="<p>Loading newsletters...</p>";
+  try{
+    const snapshot = await db.collection("newsletters").orderBy("createdAt","desc").get();
+    if(snapshot.empty){ listDiv.innerHTML="<p>No newsletters available.</p>"; return; }
+    listDiv.innerHTML="";
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const time = data.createdAt?.toDate?.().toLocaleString()||"";
+      const card = document.createElement("div");
+      card.className="newsletter-card p-3 border rounded mb-2 d-flex justify-content-between align-items-start";
+      card.innerHTML=`
+        <div><i class="fas fa-envelope me-2 text-primary"></i><strong>${data.subject}</strong><small class="text-muted d-block">${time}</small></div>
+        <span class="close-newsletter" style="cursor:pointer; font-size:18px;">&times;</span>
+      `;
+      card.addEventListener("click",async e=>{
+        if(!e.target.classList.contains("close-newsletter")){
+          document.getElementById("newsletterModalBody").innerHTML=`<h5>${data.subject}</h5><small class="text-muted">${time}</small><p>${data.message}</p>`;
+          new bootstrap.Modal(document.getElementById('newsletterModal')).show();
+          if(!data.checked) await db.collection("newsletters").doc(doc.id).update({checked:true});
+        }
+      });
+      card.querySelector(".close-newsletter").addEventListener("click",e=>{ e.stopPropagation(); card.remove(); });
+      if(data.checked) card.style.backgroundColor="#e9ecef";
+      listDiv.appendChild(card);
+    });
+  }catch(err){ console.error(err); listDiv.innerHTML="<p>Error loading newsletters.</p>"; }
+}
+
+
+  
+
+
+</script>
+</body>
+</html>

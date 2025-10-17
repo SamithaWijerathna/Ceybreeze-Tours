@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tour Packages Catalog</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Core CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <!-- Owl Carousel -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <!-- Nice Select -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <!-- Font Awesome -->
+  <link href="css/font-awesome.min.css" rel="stylesheet" />
+  <!-- Custom Styles -->
+  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
+<style>
+
+
+/* Offers Banner */
+#offersBanner {
+  background: rgba(28, 61, 90, 0.7);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 15px 20px;
+  margin: 20px auto;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  max-width: 900px;
+  overflow: hidden;
+}
+
+#offerTextWrapper {
+  width: 600px;
+  overflow: hidden;
+  position: relative;
+  height: 1.8em;
+}
+
+#offerText {
+  display: inline-block;
+  position: absolute;
+  white-space: nowrap;
+  animation: slideText 8s linear infinite;
+}
+
+@keyframes slideText {
+  0% { transform: translateX(100%); }
+  10% { transform: translateX(0%); }
+  90% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+#offersBanner button {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#offersBanner button:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Package Cards */
+h2 { font-weight: 700; color: #1c3d5a; }
+.package-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  background: #ffffff;
+}
+.package-card:hover { 
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+.package-card img { 
+  width: 100%; 
+  height: 220px; 
+  object-fit: cover; 
+  transition: transform 0.3s;
+}
+.package-card:hover img { transform: scale(1.05); }
+.package-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 15px;
+
+  color: white;
+  text-align: left;
+}
+.package-info h5 { margin:0; font-size:1.2rem; }
+.package-info p { margin:2px 0; font-size:0.9rem; }
+.package-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.package-badges span {
+  background: rgba(255,255,255,0.85);
+  color: #1c3d5a;
+  font-size: 0.75rem;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.modal-body {
+  background: linear-gradient(120deg, #8d8e8f, #d9e2ec);
+  border-radius: 10px;
+  padding: 20px;
+}
+.carousel-inner img {
+  border-radius: 12px;
+  background: linear-gradient(120deg, #f0f4f8, #d9e2ec);
+}
+.modal-body p { font-size: 16px; margin-bottom: 10px; }
+.carousel-inner img { border-radius: 10px; }
+
+/* Search Bar */
+#searchBar { margin: 20px auto; max-width: 900px; display:flex; gap:10px; }
+#searchBar input { flex:1; padding:8px 12px; border-radius:6px; border:1px solid #ccc; }
+
+.header_section {
+  position: relative; /* instead of absolute */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.8); /* optional, for readability */
+}
+
+.header_section .navbar .nav-link,
+.header_section .navbar-brand,
+.header_section .user_option span,
+.header_section .user_option a {
+  color: #fff !important;
+}
+
+.dropdown-menu #signOutBtn {
+  color: #000000;
+  background-color: #1b263b;
+}
+
+.dropdown-menu #signOutBtn:hover {
+  color: #fff;
+  background-color: #f8b400;
+}
+#signOutBtn {
+  color: #0c0c0c;          /* Change text color */
+  font-weight: 600;         /* Make text bold */
+  background-color: transparent; /* Keep background transparent */
+  transition: color 0.3s ease;  /* Smooth hover effect */
+}
+
+#signOutBtn:hover {
+  color: #fff;              /* Text color on hover */
+  background-color: #f8b400; /* Optional: background highlight */
+  border-radius: 5px;        /* Optional: rounded corners */
+}
+/* --- Package card text truncation --- */
+.package-info h5,
+.package-info p,
+.package-info .package-badges span {
+  white-space: nowrap;       /* Keep text in 1 line */
+  overflow: hidden;          /* Hide overflow */
+  text-overflow: ellipsis;   /* Show ... if too long */
+}
+
+/* Modal text should show full content */
+#modalTitleText,
+#modalDescription,
+#modalPlaces,
+#modalDays,
+#modalID {
+  white-space: normal;  /* allow multiple lines */
+  overflow: visible;
+  text-overflow: unset;
+  display: block;
+  word-wrap: break-word;
+}
+
+
+.package-card {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+
+.package-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.package-img-container img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.package-info {
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  color: #ffffff;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.package-info h5,
+.package-info p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f0f4f8;
+  margin:0; padding:0;
+}
+
+
+
+/* Offers Banner */
+#offersBanner {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin:20px auto; max-width:900px;
+  padding:12px 16px; border-radius:20px;
+  background: linear-gradient(90deg,#f8b400,#ff6b6b);
+  color:#fff; font-weight:600; font-size:1.2rem;
+  overflow:hidden;
+}
+#offerTextWrapper { width:80%; overflow:hidden; position:relative; height:1.2em; }
+#offerText { position:absolute; white-space:nowrap; animation:slideText 8s linear infinite; }
+@keyframes slideText { 0%{transform:translateX(100%);}10%{transform:translateX(0);}90%{transform:translateX(0);}100%{transform:translateX(-100%);} }
+#offersBanner button {
+  background: rgba(255,255,255,0.3); border:none; border-radius:50%; width:36px; height:36px;
+  color:#fff; cursor:pointer; transition:0.3s;
+}
+#offersBanner button:hover { background: rgba(255,255,255,0.6); }
+
+/* Search Bar */
+#searchBar { display:flex; gap:10px; margin:20px auto; max-width:900px; padding:12px; border-radius:20px; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+#searchBar input { flex:1; padding:10px 16px; border-radius:20px; border:1px solid #ccc; outline:none; }
+#searchBar button { border-radius:20px; }
+
+/* Package Cards */
+.package-card {
+  border-radius:20px; overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+  cursor:pointer; transition:0.3s;
+  background:#fff; position:relative;
+}
+.package-card:hover { transform: translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.2); }
+.package-img-container img { width:100%; height:200px; object-fit:cover; transition:0.3s; }
+.package-card:hover img { transform: scale(1.05); }
+.package-info {
+  position:absolute; bottom:0; width:100%; padding:12px;
+  background:rgba(0,0,0,0.5); color:#fff; border-top-left-radius:15px; border-top-right-radius:15px;
+}
+.package-info h5, .package-info p { margin:0; font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+
+/* Modal */
+.modal-content { border-radius:20px; }
+.modal-body { padding:20px; background:#f0f4f8; }
+.carousel-inner img { border-radius:15px; }
+
+/* Responsive tweaks */
+@media(max-width:768px){
+  #searchBar { flex-direction:column; }
+  #offersBanner { flex-direction:column; gap:8px; }
+}
+body { font-family: 'Poppins', sans-serif; background: #f0f4f8; margin:0; padding:0; }
+
+.header_section { position: relative; width:100%; z-index:10; background: rgba(0,0,0,0.8); }
+.header_section .navbar .nav-link, .header_section .navbar-brand, .header_section .user_option span, .header_section .user_option a { color:#fff !important; }
+
+#offersBanner { display:flex; align-items:center; justify-content:center; gap:10px; margin:20px auto; max-width:900px; padding:12px 16px; border-radius:20px; background: linear-gradient(90deg,#f8b400,#ff6b6b); color:#fff; font-weight:600; font-size:1.2rem; overflow:hidden; }
+#offerTextWrapper { width:80%; overflow:hidden; position:relative; height:1.2em; }
+#offerText { position:absolute; white-space:nowrap; animation:slideText 8s linear infinite; }
+@keyframes slideText { 0%{transform:translateX(100%);}10%{transform:translateX(0);}90%{transform:translateX(0);}100%{transform:translateX(-100%);} }
+#offersBanner button { background: rgba(255,255,255,0.3); border:none; border-radius:50%; width:36px; height:36px; color:#fff; cursor:pointer; transition:0.3s; }
+#offersBanner button:hover { background: rgba(255,255,255,0.6); }
+
+#searchBar { display:flex; gap:10px; margin:20px auto; max-width:900px; padding:12px; border-radius:20px; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+#searchBar input { flex:1; padding:10px 16px; border-radius:20px; border:1px solid #ccc; outline:none; }
+#searchBar button { border-radius:20px; }
+
+.package-card { border-radius:20px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1); cursor:pointer; transition:0.3s; background:#fff; position:relative; margin-bottom:20px; }
+.package-card:hover { transform: translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.2); }
+.package-img-container img { width:100%; height:200px; object-fit:cover; transition:0.3s; }
+.package-card:hover img { transform: scale(1.05); }
+.package-info { position:absolute; bottom:0; width:100%; padding:12px; background:rgba(0,0,0,0.5); color:#fff; border-top-left-radius:15px; border-top-right-radius:15px; }
+.package-info h5, .package-info p { margin:0; font-weight:500; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+
+.modal-content { border-radius:20px; }
+.modal-body { padding:20px; background:#f0f4f8; }
+.carousel-inner img { border-radius:15px; }
+
+@media(max-width:768px){
+  #searchBar { flex-direction:column; }
+  #offersBanner { flex-direction:column; gap:8px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header_section">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="index.html">ceyBreeze Tours</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="packagecatalog.html">Packages</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="signup.html">Sign Up</a></li>
+        </ul>
+        <div class="user_option dropdown">
+          <a href="#" id="user-greeting" class="text-white me-3 dropdown-toggle" role="button" data-bs-toggle="dropdown">Hi Guest</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" id="signOutBtn">Sign Out</a></li>
+          </ul>
+          <a href="#" id="bookingBtn" class="order_online ms-2">Booking</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Offers Banner -->
+<div id="offersBanner">
+  <button id="prevOffer">&#10094;</button>
+  <div id="offerTextWrapper"><span id="offerText">Loading offers...</span></div>
+  <button id="nextOffer">&#10095;</button>
+</div>
+
+<!-- Search Bar -->
+<div id="searchBar" class="container">
+  <input type="text" id="searchTitle" placeholder="Search by Title">
+  <input type="number" id="searchDays" placeholder="Days" min="1">
+  <input type="text" id="searchPlaces" placeholder="Place">
+  <button id="searchBtn" class="btn btn-primary">Search</button>
+</div>
+
+<!-- Packages Grid -->
+<div class="container mt-3">
+  <h2 class="text-center mb-4">Tour Packages</h2>
+  <div class="row" id="packagesGrid"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="packageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-primary" id="modalTitle">Package Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="carouselContainer" class="mb-3"></div>
+        <div class="info-card p-3 rounded bg-light">
+          <div class="d-flex align-items-center mb-2">
+            <i class="fa fa-hashtag text-primary me-2"></i>
+            <span id="modalID"></span>
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <i class="fa fa-map text-success me-2"></i>
+            <span id="modalPlaces"></span>
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <i class="fa fa-clock text-warning me-2"></i>
+            <span id="modalDays"></span> Days
+          </div>
+          <div class="d-flex align-items-start mb-3">
+            <i class="fa fa-align-left text-info me-2 mt-1"></i>
+            <span id="modalDescription"></span>
+          </div>
+
+          <!-- ✅ Missing container for day plans -->
+          <div id="modalDayPlans" class="mt-3">
+            <!-- Day plans will be injected here dynamically -->
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-lg btn-gradient" id="bookNowBtn">
+            <i class="fa fa-calendar-plus me-2"></i> Book Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.appspot.com",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// --- Header Auth ---
+auth.onAuthStateChanged(user => {
+  const greeting = document.getElementById("user-greeting");
+  const signOutBtn = document.getElementById("signOutBtn");
+  if(user){
+    let firstName = user.displayName?.split(' ')[0] ?? "User";
+    greeting.textContent = `Hi ${firstName}`;
+    signOutBtn.style.display = "block";
+    signOutBtn.addEventListener("click", e => {
+      e.preventDefault();
+      auth.signOut().then(()=>window.location.href="index.html");
+    });
+  } else {
+    greeting.textContent = "Hi Guest";
+    signOutBtn.style.display = "none";
+  }
+});
+
+// --- Offers Banner ---
+const offers = [];
+let currentOffer = 0;
+const offerText = document.getElementById("offerText");
+db.collection("offers").orderBy("createdAt","desc").limit(3).get().then(snapshot=>{
+  snapshot.forEach(doc=>offers.push(doc.data().text));
+  offerText.textContent = offers[0] ?? "No offers available";
+});
+document.getElementById("prevOffer").addEventListener("click",()=>{
+  currentOffer=(currentOffer-1+offers.length)%offers.length;
+  offerText.textContent=offers[currentOffer]??"No offers available";
+});
+document.getElementById("nextOffer").addEventListener("click",()=>{
+  currentOffer=(currentOffer+1)%offers.length;
+  offerText.textContent=offers[currentOffer]??"No offers available";
+});
+setInterval(()=>{
+  currentOffer=(currentOffer+1)%offers.length;
+  offerText.textContent=offers[currentOffer]??"No offers available";
+},6000);
+
+// --- Packages ---
+const packagesGrid = document.getElementById("packagesGrid");
+const packageModal = new bootstrap.Modal(document.getElementById('packageModal'));
+const modalID = document.getElementById("modalID");
+const modalTitle = document.getElementById("modalTitle");
+const modalDays = document.getElementById("modalDays");
+const modalPlaces = document.getElementById("modalPlaces");
+const modalDescription = document.getElementById("modalDescription");
+const carouselContainer = document.getElementById("carouselContainer");
+const bookNowBtn = document.getElementById("bookNowBtn");
+
+let allPackages = [];
+
+async function loadPackages(){
+  try{
+    const snapshot = await db.collection("tourPackages").orderBy("packageID").get();
+    allPackages = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+    displayPackages(allPackages);
+    checkUrlForPackage();
+  }catch(err){
+    console.error(err);
+    packagesGrid.innerHTML="<p class='text-danger'>Failed to load packages</p>";
+  }
+}
+
+function displayPackages(packages){
+  packagesGrid.innerHTML="";
+  packages.forEach(pkg=>{
+    const col=document.createElement("div");
+    col.className="col-md-4 mb-4";
+
+    const imageUrl = pkg.photos?.[0] ?? 'https://via.placeholder.com/400x200?text=No+Image';
+    const placeText = pkg.places?.map(p=>`${p.name} (${p.province})`).join(", ") ?? '-';
+
+    col.innerHTML=`
+      <div class="package-card">
+        <div class="package-img-container">
+          <img src="${imageUrl}" alt="${pkg.title??'No Title'}">
+        </div>
+        <div class="package-info">
+          <h5 title="${pkg.title??'No Title'}">${pkg.title??'No Title'}</h5>
+          <p><strong>Days:</strong> ${pkg.days??'-'}</p>
+          <p><strong>Places:</strong> ${placeText}</p>
+        </div>
+      </div>
+    `;
+    col.querySelector('.package-card').addEventListener('click',()=>showModal(pkg));
+    packagesGrid.appendChild(col);
+  });
+}
+
+function showModal(pkg){
+  modalID.textContent = pkg.packageID ?? '-';
+  modalTitle.textContent = pkg.title ?? '-';
+  modalDays.textContent = pkg.days ?? '-';
+
+  // ✅ Fix places display
+  if (pkg.places && Array.isArray(pkg.places)) {
+    if (typeof pkg.places[0] === "object") {
+      modalPlaces.textContent = pkg.places.map(p => `${p.name} (${p.province})`).join(", ");
+    } else {
+      modalPlaces.textContent = pkg.places.join(", ");
+    }
+  } else {
+    modalPlaces.textContent = "-";
+  }
+
+  modalDescription.textContent = pkg.description ?? '-';
+
+  // ========================
+  // Carousel
+  // ========================
+  carouselContainer.innerHTML = '';
+  if(pkg.photos?.length > 0){
+    carouselContainer.innerHTML = `
+      <div id="packageCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          ${pkg.photos.map((_,idx)=>`
+            <button type="button" data-bs-target="#packageCarousel" data-bs-slide-to="${idx}" 
+              ${idx===0?'class="active"':''} aria-current="${idx===0?'true':''}" aria-label="Slide ${idx+1}">
+            </button>`).join('')}
+        </div>
+        <div class="carousel-inner">
+          ${pkg.photos.map((url,idx)=>`
+            <div class="carousel-item ${idx===0?'active':''}">
+              <img src="${url}" class="d-block w-100" style="max-height:500px; object-fit:contain;">
+            </div>`).join('')}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#packageCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#packageCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    `;
+    new bootstrap.Carousel(document.getElementById('packageCarousel'), { interval: 3000, pause: false });
+  } else {
+    carouselContainer.innerHTML = "<p>No images available</p>";
+  }
+
+  // ========================
+  // Day Plans Section
+  // ========================
+  const dayPlansContainer = document.getElementById("modalDayPlans");
+  dayPlansContainer.innerHTML = "";
+
+  if(pkg.dayPlans && pkg.dayPlans.length > 0){
+    pkg.dayPlans.forEach((plan, index)=>{
+      const div = document.createElement("div");
+      div.className = "day-plan mb-2 p-2 border rounded bg-light";
+      div.innerHTML = `
+        <h6 class="fw-bold text-primary">Day ${index+1}</h6>
+        <p><strong>Place:</strong> ${plan.place ?? '-'}</p>
+        <p><strong>Activity:</strong> ${plan.activity ?? '-'}</p>
+      `;
+      dayPlansContainer.appendChild(div);
+    });
+  } else {
+    dayPlansContainer.innerHTML = "<p>No day plans available</p>";
+  }
+
+
+
+
+  // ================== Carousel ==================
+  carouselContainer.innerHTML='';
+  if(pkg.photos?.length>0){
+    carouselContainer.innerHTML=`
+      <div id="packageCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          ${pkg.photos.map((_,idx)=>`<button type="button" data-bs-target="#packageCarousel" data-bs-slide-to="${idx}" ${idx===0?'class="active"':''} aria-current="${idx===0?'true':''}" aria-label="Slide ${idx+1}"></button>`).join('')}
+        </div>
+        <div class="carousel-inner">
+          ${pkg.photos.map((url,idx)=>`<div class="carousel-item ${idx===0?'active':''}">
+            <img src="${url}" class="d-block w-100" style="max-height:500px; object-fit:contain;">
+          </div>`).join('')}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#packageCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#packageCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    `;
+    new bootstrap.Carousel(document.getElementById('packageCarousel'),{interval:3000,pause:false});
+  } else {
+    carouselContainer.innerHTML="<p>No images available</p>";
+  }
+   // Book Now button
+  bookNowBtn.setAttribute("data-id", pkg.id);
+  packageModal.show();
+}
+
+
+ 
+
+
+// --- Book Now redirect ---
+bookNowBtn.addEventListener("click",()=>{
+  const pkgId = bookNowBtn.getAttribute("data-id");
+  if(pkgId) window.location.href=`reservation.html?packageId=${encodeURIComponent(pkgId)}`;
+});
+
+// --- URL package check ---
+function checkUrlForPackage(){
+  const params = new URLSearchParams(window.location.search);
+  const packageId = params.get('packageId');
+  if(!packageId) return;
+  const pkg = allPackages.find(p=>p.id===packageId);
+  if(pkg) showModal(pkg);
+}
+
+// --- Search ---
+document.getElementById("searchBtn").addEventListener("click",()=>{
+  const title = document.getElementById("searchTitle").value.toLowerCase();
+  const days = document.getElementById("searchDays").value;
+  const place = document.getElementById("searchPlaces").value.toLowerCase();
+  const filtered = allPackages.filter(pkg=>{
+    const matchTitle = title ? pkg.title?.toLowerCase().includes(title) : true;
+    const matchDays = days ? pkg.days===Number(days) : true;
+    const matchPlace = place ? pkg.places?.some(p=>p.toLowerCase().includes(place)) : true;
+    return matchTitle && matchDays && matchPlace;
+  });
+  displayPackages(filtered);
+});
+
+// Initial load
+loadPackages();
+</script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tour Packages</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+body { display:flex; min-height:100vh; overflow:auto; }
+.sidebar { min-width:220px; background:#212529; color:white; }
+.sidebar a { display:flex; align-items:center; color:white; padding:12px; text-decoration:none; border-radius:5px; margin-bottom:5px; }
+.sidebar a:hover { background:#495057; }
+.sidebar a i { margin-right:10px; }
+.sidebar h4 { color:#f8f9fa; margin-bottom:20px; }
+.main-content { flex:1; padding:20px; background:#f8f9fa; overflow-y:auto; }
+.card { min-height:120px; }
+.photo-wrapper { position: relative; width:80px; height:80px; margin-right:10px; margin-bottom:10px; }
+.photo-wrapper img { width:100%; height:100%; object-fit:cover; border-radius:4px; }
+.photo-wrapper button { position:absolute; top:-5px; right:-5px; }
+.place-img { width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:5px; }
+.place-span { display:flex; align-items:center; margin-bottom:2px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar p-3">
+  <h4><i class="fas fa-cogs"></i> Admin Panel</h4><hr>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+  <a href="tour-packages.html"><i class="fas fa-suitcase-rolling"></i> Tour Packages</a>
+  <a href="prices-upgrade.html"><i class="fas fa-tags"></i> Prices Upgrade</a>
+  <a href="homepage-slider.html"><i class="fas fa-images"></i> Homepage Slider</a>
+  <a href="users.html"><i class="fas fa-users"></i> Users</a>
+  <a href="contacts.html"><i class="fas fa-envelope"></i> Contact Messages</a>
+  <a href="newsletter.html"><i class="fas fa-paper-plane"></i> NewsLetter</a>
+  <a href="offers.html" class="active-page"><i class="fas fa-gift"></i> Offers</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+  <h2>Tour Packages Management</h2>
+  <form id="packageForm" class="mb-4">
+    <div class="row mb-2">
+      <div class="col-md-2">
+        <label>Package ID</label>
+        <input type="text" id="packageID" class="form-control" readonly>
+      </div>
+      <div class="col-md-2">
+        <label>Count of Days</label>
+        <select id="days" class="form-control"></select>
+      </div>
+      <div class="col-md-4">
+        <label>Title</label>
+        <input type="text" id="title" class="form-control" required>
+      </div>
+    </div>
+    <div class="mb-2">
+      <label>Places</label>
+      <div id="placesList"></div>
+      <button type="button" class="btn btn-sm btn-secondary mt-1" onclick="addPlaceField()">Add Place</button>
+    </div>
+    <div class="mb-2">
+      <label>Description</label>
+      <textarea id="description" class="form-control"></textarea>
+    </div>
+    <!-- after Description -->
+<div class="mb-2">
+  <label>Day Plans</label>
+  <div id="dayPlansList"></div>
+</div>
+    <div class="mb-2">
+      <label>Attach Package Photos</label>
+      <input type="file" id="photos" class="form-control" multiple accept="image/*" onchange="previewPhotos()">
+      <div id="photoPreview" class="d-flex flex-wrap"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Package</button>
+  </form>
+
+  <div class="mb-3 d-flex">
+    <input type="text" id="searchInput" class="form-control me-2" placeholder="Search by ID or Title" onkeyup="searchTable()">
+  </div>
+
+  <table class="table table-bordered" id="packagesTable">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th><th>Title</th><th>Days</th><th>Places</th><th>Description</th><th>Photo</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script>
+// ------------------- Firebase Config -------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// ------------------- User & Access Control -------------------
+const user = JSON.parse(localStorage.getItem("loggedInUser"));
+if (!user) window.location.href = "login.html"; 
+
+const restrictedPages = ["settings.html","newsletter.html","reports.html","homepage-slider.html"];
+const currentPage = window.location.pathname.split("/").pop();
+if(user.role==="editor" && restrictedPages.includes(currentPage)){
+  document.body.innerHTML=`<div class="container text-center mt-5">
+  <h3 class="text-danger">Only Admin can access this page</h3>
+  <p>You are logged in as <b>${user.username}</b> (${user.role})</p></div>`;
+}
+
+if(user.role==="editor"){
+  const form = document.getElementById("packageForm");
+  if(form) form.style.display="none";
+  const mainContent = document.querySelector(".main-content");
+  if(mainContent){
+    const info = document.createElement("p");
+    info.className="text-muted mb-3";
+    info.textContent="You have read-only access to the packages list.";
+    mainContent.insertBefore(info, mainContent.firstChild);
+  }
+}
+
+// ------------------- Populate Days Dropdown -------------------
+for(let i=1;i<=30;i++){ document.getElementById("days").innerHTML+=`<option>${i}</option>`; }
+
+// ------------------- Auto-generate Package ID -------------------
+async function generatePackageID(){
+  const snapshot = await db.collection("tourPackages").get();
+  document.getElementById("packageID").value = snapshot.size + 1;
+}
+if(user.role==="admin") generatePackageID();
+
+// ------------------- Places Field -------------------
+function addPlaceField(place={name:"",province:"",photoUrl:""}){
+  const provinces=["Central Province","Eastern Province","North Central Province","Northern Province","North Western Province","Sabaragamuwa Province","Southern Province","Uva Province","Western Province"];
+  const div=document.createElement("div"); div.className="d-flex mb-1 align-items-center flex-wrap";
+
+  const placeInput=document.createElement("input");
+  placeInput.type="text"; placeInput.className="form-control me-2 mb-1";
+  placeInput.placeholder="Enter place"; placeInput.value=place.name; placeInput.required=true;
+
+  const provinceSelect=document.createElement("select");
+  provinceSelect.className="form-control me-2 mb-1";
+  provinces.forEach(p=>{ const opt=document.createElement("option"); opt.value=p; opt.text=p; if(p===place.province) opt.selected=true; provinceSelect.appendChild(opt); });
+
+  const photoInput=document.createElement("input");
+  photoInput.type="file"; photoInput.accept="image/*"; photoInput.className="form-control me-2 mb-1";
+  photoInput.onchange=()=>{ if(photoInput.files[0]) div.querySelector("img") ? div.querySelector("img").src=URL.createObjectURL(photoInput.files[0]):null; }
+
+  const imgPreview=document.createElement("img");
+  imgPreview.className="mb-1";
+  imgPreview.style.width="40px"; imgPreview.style.height="40px"; imgPreview.style.objectFit="cover"; imgPreview.style.borderRadius="4px"; imgPreview.style.marginRight="5px";
+  if(place.photoUrl) imgPreview.src=place.photoUrl;
+
+  const removeBtn=document.createElement("button");
+  removeBtn.type="button"; removeBtn.className="btn btn-danger btn-sm mb-1"; removeBtn.textContent="X";
+  removeBtn.onclick=()=>div.remove();
+
+  div.appendChild(placeInput);
+  div.appendChild(provinceSelect);
+  div.appendChild(photoInput);
+  div.appendChild(imgPreview);
+  div.appendChild(removeBtn);
+
+  document.getElementById("placesList").appendChild(div);
+}
+if(user.role==="admin") addPlaceField();
+
+// ------------------- Package Photos -------------------
+let selectedFiles=[], existingPhotos=[], removedExistingPhotos=[];
+function previewPhotos(){ selectedFiles=Array.from(document.getElementById("photos").files).slice(0,10); renderPhotoArea(); }
+function renderPhotoArea(){
+  const previewDiv=document.getElementById("photoPreview"); previewDiv.innerHTML="";
+  existingPhotos.forEach((url,idx)=>{ const wrapper=document.createElement("div"); wrapper.className="photo-wrapper"; wrapper.innerHTML=`<img src="${url}">`; if(user.role==="admin") wrapper.innerHTML+=`<button type="button" class="btn btn-danger btn-sm" onclick="removeExistingPhoto(${idx})">&times;</button>`; previewDiv.appendChild(wrapper); });
+  selectedFiles.forEach((file,index)=>{ const reader=new FileReader(); reader.onload=e=>{ const wrapper=document.createElement("div"); wrapper.className="photo-wrapper"; wrapper.innerHTML=`<img src="${e.target.result}">`; if(user.role==="admin") wrapper.innerHTML+=`<button type="button" class="btn btn-danger btn-sm" onclick="removePhoto(${index})">&times;</button>`; previewDiv.appendChild(wrapper); }; reader.readAsDataURL(file); });
+}
+function removePhoto(index){ selectedFiles.splice(index,1); renderPhotoArea(); }
+function removeExistingPhoto(idx){ removedExistingPhotos.push(existingPhotos[idx]); existingPhotos.splice(idx,1); renderPhotoArea(); }
+
+// ------------------- Save Package -------------------
+if(user.role==="admin"){
+  const form=document.getElementById("packageForm");
+  form.addEventListener("submit", async e=>{
+    e.preventDefault();
+    try{
+      const id=document.getElementById("packageID").value;
+      const title=document.getElementById("title").value;
+      const days=parseInt(document.getElementById("days").value);
+      const description=document.getElementById("description").value;
+
+      // Upload package photos
+      const photoUrls=[...existingPhotos];
+      for(const file of selectedFiles){ const ref=storage.ref(`packages/${id}/${file.name}`); await ref.put(file); const url=await ref.getDownloadURL(); photoUrls.push(url); }
+      for(const url of removedExistingPhotos){ try{ await storage.refFromURL(url).delete(); } catch(err){ console.warn(err); } }
+
+// Upload place photos & save in allplaces
+const places = await Promise.all(
+  Array.from(document.querySelectorAll("#placesList div")).map(async div => {
+    const name = div.querySelector("input[type=text]").value.trim();
+    const province = div.querySelector("select").value;
+    const file = div.querySelector("input[type=file]").files[0];
+
+    let photoUrl = "";
+    if (file) {
+      const ref = storage.ref(`allplaces/${name}/${file.name}`);
+      await ref.put(file);
+      photoUrl = await ref.getDownloadURL();
+    } else if (div.querySelector("img").src) {
+      photoUrl = div.querySelector("img").src;
+    }
+
+    const placeDocRef = db.collection("allplaces").doc(name);
+    const placeDoc = await placeDocRef.get();
+
+    if (placeDoc.exists) {
+      const existingProvinces = placeDoc.data().province || [];
+      if (!existingProvinces.includes(province)) existingProvinces.push(province);
+
+      // Update document with new province and single photo URL
+      await placeDocRef.update({
+        name,       // Save the place name
+        province: existingProvinces,
+        photo: photoUrl   // <-- Save single URL here
+      });
+    } else {
+      await placeDocRef.set({
+        name,
+        province: [province],
+        photo: photoUrl   // <-- Save single URL here
+      });
+    }
+
+    return { name, province, photoUrl };
+  })
+);
+
+
+
+// ------------------- Save Package -------------------
+await db.collection("tourPackages").doc(id.toString()).set({
+  packageID: id,
+  title,
+  days,
+  description,
+  places,
+  photos: photoUrls,
+  dayPlans: Array.from(document.querySelectorAll(".day-plan")).map((ta, idx) => ({
+    day: idx + 1,
+    plan: ta.value.trim()
+  }))
+});
+
+      alert("Package saved successfully ✅");
+      form.reset(); selectedFiles=[]; existingPhotos=[]; removedExistingPhotos=[]; document.getElementById("photoPreview").innerHTML=""; document.getElementById("placesList").innerHTML=""; addPlaceField(); generatePackageID();
+    }catch(err){ console.error(err); alert("❌ Failed: "+err.message); }
+  });
+}
+
+// ------------------- Load Table -------------------
+const tbody=document.querySelector("#packagesTable tbody");
+db.collection("tourPackages").orderBy("packageID").onSnapshot(snapshot=>{
+  tbody.innerHTML="";
+  snapshot.forEach(doc=>{
+    const data=doc.data();
+    const actions=user.role==="admin"? `<button class="btn btn-warning btn-sm" onclick="editPackage('${doc.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deletePackage('${doc.id}')">Delete</button>`: "";
+    tbody.innerHTML+=`<tr>
+      <td>${data.packageID}</td>
+      <td>${data.title}</td>
+      <td>${data.days}</td>
+      <td>${data.places.map(p=>`<span class="place-span"><img src="${p.photoUrl}" class="place-img">${p.name} (${p.province})</span>`).join("")}</td>
+      <td>${data.description.substring(0,30)}...</td>
+      <td>${data.photos&&data.photos[0]?`<img src="${data.photos[0]}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">`:''}</td>
+      <td>${actions}</td>
+    </tr>`;
+  });
+});
+
+// ------------------- Edit & Delete -------------------
+function editPackage(docId){
+  if(user.role!=="admin") return;
+  db.collection("tourPackages").doc(docId).get().then(doc=>{
+    if(!doc.exists) return alert("Package not found");
+    const data=doc.data();
+    document.getElementById("packageID").value=data.packageID;
+    document.getElementById("title").value=data.title;
+    document.getElementById("days").value=data.days;
+    document.getElementById("description").value=data.description;
+    const placesList=document.getElementById("placesList"); placesList.innerHTML="";
+    data.places.forEach(place=>addPlaceField(place));
+    existingPhotos=data.photos||[]; removedExistingPhotos=[]; selectedFiles=[]; renderPhotoArea();
+  });
+}
+
+function deletePackage(docId){
+  if(user.role!=="admin") return;
+  if(confirm("Are you sure to delete this package?")){
+    db.collection("tourPackages").doc(docId).get().then(async doc=>{
+      if(doc.exists && doc.data().photos){ for(const url of doc.data().photos){ try{ await storage.refFromURL(url).delete(); } catch(e){ console.warn(e); } } }
+      return db.collection("tourPackages").doc(docId).delete();
+    }).then(()=>alert("Package deleted successfully")).catch(err=>{ console.error(err); alert("Failed to delete package"); });
+  }
+}
+
+// ------------------- Search -------------------
+function searchTable(){
+  const input=document.getElementById("searchInput").value.toLowerCase();
+  document.querySelectorAll("#packagesTable tbody tr").forEach(row=>{
+    const id=row.cells[0].textContent.toLowerCase();
+    const title=row.cells[1].textContent.toLowerCase();
+    row.style.display=(id.includes(input)||title.includes(input))?"":"none";
+  });
+}
+
+// ------------------- Logout -------------------
+document.getElementById("logoutBtn").addEventListener("click", function(e){
+  e.preventDefault();
+  if(confirm("Are you sure you want to log out?")){
+    localStorage.removeItem("loggedInUser");
+    window.location.href="adminlogin.html";
+  }
+});
+
+
+// ------------------- Generate Day Plans -------------------
+document.getElementById("days").addEventListener("change", generateDayPlans);
+function generateDayPlans() {
+  const days = parseInt(document.getElementById("days").value) || 0;
+  const dayPlansList = document.getElementById("dayPlansList");
+  dayPlansList.innerHTML = "";
+  for (let i = 1; i <= days; i++) {
+    const div = document.createElement("div");
+    div.className = "mb-2";
+    div.innerHTML = `
+      <label>Day ${i} Plan</label>
+      <textarea class="form-control day-plan" data-day="${i}" placeholder="Enter plan for Day ${i}"></textarea>
+    `;
+    dayPlansList.appendChild(div);
+  }
+}
+
+</script>
+</body>
+</html>

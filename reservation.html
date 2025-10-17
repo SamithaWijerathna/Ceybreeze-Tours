@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CeyBreeze Tours – Booking Wizard (Packages → Dates → Travelers → Hotel → Vehicle → Meals → Payment → Confirm)</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --brand:#0d6efd;
+      --soft:#f8f9fa;
+      --card:#ffffff;
+      --shadow:0 6px 20px rgba(0,0,0,.08);
+    }
+    body{background:var(--soft)}
+    .container-xl{max-width:1200px}
+
+    /* layout */
+    .wizard-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+    @media (max-width: 992px){.wizard-layout{grid-template-columns:1fr}}
+
+    /* steps */
+    .step{display:none}
+    .step.active{display:block;animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)}}
+
+    /* progress */
+    #progressbar{display:flex;gap:8px;list-style:none;padding:0;margin:0 0 16px 0;overflow-x:auto}
+    #progressbar li{flex:1;min-width:110px;text-align:center;font-size:.85rem;color:#7a7a7a}
+    #progressbar li .dot{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;margin:0 auto 6px;background:#e9ecef}
+    #progressbar li.active{color:var(--brand);font-weight:600}
+    #progressbar li.active .dot{background:rgba(13,110,253,.15)}
+
+    /* cards */
+    .card{border:0;border-radius:14px;box-shadow:var(--shadow)}
+    .card-header{background:transparent;border:0}
+
+    /* sticky summary */
+    #summaryCol{position:sticky;top:16px;align-self:start}
+    #summaryCard{background:var(--card);border-radius:16px;box-shadow:var(--shadow)}
+    #summaryCard .price{font-size:1.25rem;font-weight:800;color:#0b3}
+    .line-item{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+    .line-item small{color:#6c757d}
+    .divider{border-top:1px dashed #d9d9d9;margin:.5rem 0}
+
+    /* nav buttons */
+    .nav-buttons{display:flex;gap:10px;justify-content:space-between}
+
+    /* package cards */
+    .pkg-card img{height:140px;object-fit:cover;border-top-left-radius:14px;border-top-right-radius:14px}
+    .pkg-chip{background:rgba(13,110,253,.1);color:var(--brand);padding:2px 8px;border-radius:10px;font-size:.75rem}
+
+    .header_section {position:relative;top:0;left:0;width:100%;z-index:10;background:rgba(0,0,0,0.8)}
+    .header_section .navbar .nav-link,
+    .header_section .navbar-brand,
+    .header_section .user_option span,
+    .header_section .user_option a {color:#fff!important}
+  </style>
+</head>
+<body>
+
+<header class="header_section mb-2">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg custom_nav-container ">
+      <a class="navbar-brand" href="index.html"><span>ceyBreeze Tours</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"> </span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="packagecatalog.html">Packages</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+        </ul>
+        <div class="user_option">
+          <span id="user-greeting" class="order_online">Hi Guest</span>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="container-xl mb-5">
+  <h2 class="text-center mb-3">Tour Booking Wizard</h2>
+  <ul id="progressbar" class="mb-3">
+    <li class="active"><div class="dot"><i class="fa fa-suitcase"></i></div>Package</li>
+    <li><div class="dot"><i class="fa fa-calendar"></i></div>Departure</li>
+    <li><div class="dot"><i class="fa fa-users"></i></div>Travelers</li>
+    <li><div class="dot"><i class="fa fa-hotel"></i></div>Hotel</li>
+    <li><div class="dot"><i class="fa fa-car"></i></div>Vehicle</li>
+    <li><div class="dot"><i class="fa fa-utensils"></i></div>Meals</li>
+    <li><div class="dot"><i class="fa fa-credit-card"></i></div>Payment</li>
+    <li><div class="dot"><i class="fa fa-check"></i></div>Confirm</li>
+  </ul>
+
+  <div class="wizard-layout">
+    <!-- LEFT: steps -->
+    <div>
+      <form id="bookingForm" class="needs-validation" novalidate>
+        <!-- Step 1: Package from Firestore -->
+        <div class="step active" data-step="0">
+          <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="m-0"><i class="fa fa-suitcase me-2"></i>Select a Package</h5>
+              <span class="text-muted small">Loaded from <code>tourPackages</code></span>
+            </div>
+            <div class="card-body">
+<!-- Single Search Bar -->
+<div id="searchBar" class="container mb-3">
+  <input type="text" id="pkgSearch" placeholder="Search by title, days, or place" class="form-control">
+</div>
+  <div id="packagesGrid" class="row g-3">
+    <!-- Packages will render here -->
+  </div>
+</div>
+
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-primary ms-auto nextBtn" disabled id="pkgNext">Next</button>
+            </div>
+          </div>
+        </div>
+
+
+        
+
+        <!-- Step 2: Departure (no return date) -->
+        <div class="step" data-step="1">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-calendar me-2"></i>Departure Date</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="fullNameInput" class="form-control" required readonly />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Preferred Departure Airport</label>
+                  <select id="departureAirport" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>Bandaranayake International Airport</option>
+                    <option>Mattala Rajapaksa International Airport</option>
+                    <option>Ratmalana Airport</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Departure Date</label>
+                  <input type="date" id="departureDate" class="form-control" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Package Days</label>
+                  <input type="text" id="totalDays" class="form-control" readonly />
+                </div>
+              </div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Travelers -->
+        <div class="step" data-step="2">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-users me-2"></i>Travelers</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Adults</label>
+                  <input type="number" id="adults" class="form-control" min="1" value="1" required />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Children</label>
+                  <input type="number" id="children" class="form-control" min="0" value="0" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Infants</label>
+                  <input type="number" id="infants" class="form-control" min="0" value="0" />
+                </div>
+              </div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Hotel & Rooms -->
+        <div class="step" data-step="3">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-hotel me-2"></i>Hotel & Rooms</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Hotel Type</label>
+                  <select id="hotelTypeSelect" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>3 Star Hotel</option>
+                    <option>4 Star Hotel</option>
+                    <option>5 Star Hotel</option>
+                    <option>Resort</option>
+                    <option>Guest House</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <hr/>
+              <h6 class="mb-2">Room Counts (per night)</h6>
+              <div id="roomCountsContainer" class="row g-3"></div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Vehicle -->
+        <div class="step" data-step="4">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-car me-2"></i>Vehicle</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Vehicle Category</label>
+                  <select id="vehicleCategorySelect" class="form-select">
+                    <option value="">Select Category</option>
+                    <option value="semiLuxury">Semi Luxury</option>
+                    <option value="luxury">Luxury</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Vehicle Type</label>
+                  <select id="vehicleTypeSelect" class="form-select" disabled>
+                    <option value="">Select Vehicle</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6: Meals & Requests -->
+        <div class="step" data-step="5">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-utensils me-2"></i>Meals & Requests</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Meal Preference</label>
+                  <select id="mealPref" class="form-select">
+                    <option value="">Select</option>
+                    <option>Vegetarian</option>
+                    <option>Non-Vegetarian</option>
+                    <option>Halal</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Special Requests</label>
+                  <textarea id="specialReq" class="form-control" rows="3" placeholder="Any special requests, assistance, or tour customization"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7: Payment -->
+        <div class="step" data-step="6">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-credit-card me-2"></i>Payment</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Preferred Payment Method</label>
+                  <select id="paymentMethod" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>Credit Card</option>
+                    <option>Bank Transfer</option>
+                    <option>PayPal</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Billing Address</label>
+                  <input id="billingAddress" type="text" class="form-control" required />
+                </div>
+                <div class="col-12 form-check mt-2">
+                  <input class="form-check-input" type="checkbox" id="agreeCheck" required />
+                  <label class="form-check-label" for="agreeCheck">I agree to the terms and conditions. <a href="privacy-policy.html" target="_blank" class="text-primary text-decoration-underline">Privacy Policy</a></label>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="button" class="btn btn-primary nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8: Confirm -->
+        <div class="step" data-step="7">
+          <div class="card">
+            <div class="card-header"><h5 class="m-0"><i class="fa fa-check me-2"></i>Confirm Booking</h5></div>
+            <div class="card-body">
+              <div id="reviewBlock" class="mb-3">
+                <!-- Filled by JS: full summary -->
+              </div>
+              <div class="alert alert-info"><i class="fa fa-info-circle me-1"></i> Please review your details and click <strong>Confirm Booking</strong> to save.</div>
+            </div>
+            <div class="card-footer nav-buttons">
+              <button type="button" class="btn btn-outline-secondary prevBtn">Back</button>
+              <button type="submit" class="btn btn-success"><i class="fa fa-check me-1"></i>Confirm Booking</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- RIGHT: sticky summary -->
+    <div id="summaryCol">
+      <div id="summaryCard" class="p-3">
+        <div class="d-flex align-items-center mb-2">
+          <i class="fa fa-receipt me-2"></i>
+          <h5 class="m-0">Price Summary</h5>
+        </div>
+        <div class="mb-2 text-muted small" id="summaryPackageName">No package selected</div>
+        <div class="line-item"><small>Persons</small><span id="summaryPersons">0</span></div>
+        <div class="line-item"><small>Package Days</small><span id="summaryDays">0</span></div>
+        <div class="divider"></div>
+        <div class="line-item"><span>Base Tour</span><span id="lineBase">$0.00</span></div>
+        <div class="line-item"><span>Hotel</span><span id="lineHotel">$0.00</span></div>
+        <div class="line-item"><span>Rooms</span><span id="lineRooms">$0.00</span></div>
+        <div class="line-item"><span>Vehicle</span><span id="lineVehicle">$0.00</span></div>
+        <div class="divider"></div>
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="fw-bold">Total</div>
+          <div class="price" id="summaryTotal">$0.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, getDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ===== Firebase config (yours) =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+    authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+    projectId: "ceybreeze-tours-3443d",
+    storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+    messagingSenderId: "94148437936",
+    appId: "1:94148437936:web:4de667cfc522c502c05875",
+    measurementId: "G-JB0916EC12"
+  };
+
+  // ===== Init =====
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  // Get selected package ID from query param
+const urlParams = new URLSearchParams(window.location.search);
+const selectedPackageId = urlParams.get("packageId");
+
+const selectedPackageTitle = urlParams.get("packageTitle");
+
+
+  onAuthStateChanged(auth, user => {
+    const greeting = document.getElementById("user-greeting");
+    greeting.textContent = user ? `Hi ${user.displayName || "User"}` : "Hi Guest";
+    const fullNameInput = document.getElementById("fullNameInput");
+    if(fullNameInput) fullNameInput.value = user?.displayName || '';
+  });
+
+  // ===== DOM refs =====
+  const steps = document.querySelectorAll('.step');
+  const progressItems = document.querySelectorAll('#progressbar li');
+
+console.log('selectedPackageId=', selectedPackageId);
+  let currentStep = 0;
+
+  // Summary refs
+  const summaryPackageName = document.getElementById('summaryPackageName');
+  const summaryPersonsSpan = document.getElementById('summaryPersons');
+  const summaryDaysSpan = document.getElementById('summaryDays');
+  const lineBase = document.getElementById('lineBase');
+  const lineHotel = document.getElementById('lineHotel');
+  const lineRooms = document.getElementById('lineRooms');
+  const lineVehicle = document.getElementById('lineVehicle');
+  const summaryTotal = document.getElementById('summaryTotal');
+
+  const packagesGrid = document.getElementById('packagesGrid');
+  const totalDaysInput = document.getElementById('totalDays');
+  const departureDate = document.getElementById('departureDate');
+  const hotelTypeSelect = document.getElementById('hotelTypeSelect');
+  const roomCountsContainer = document.getElementById('roomCountsContainer');
+  const vehicleCategorySelect = document.getElementById('vehicleCategorySelect');
+  const vehicleTypeSelect = document.getElementById('vehicleTypeSelect');
+  const adultsEl = document.getElementById('adults');
+  const childrenEl = document.getElementById('children');
+  const infantsEl = document.getElementById('infants');
+  const pkgNextBtn = document.getElementById('pkgNext');
+  const reviewBlock = document.getElementById('reviewBlock');
+
+
+  // Data
+  let priceData = null;        // from doc("tourPrices", "defaultPrices")
+  let vehiclePrices = null;    // from doc("vehiclePrices", "defaultVehicles")
+  let packages = [];           // from collection("tourPackages")
+  let selectedPackage = null;  // chosen package object
+
+  // ===== Helpers =====
+  const fmt = (n)=> new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(+n||0);
+
+  const getTotalPeople = ()=> (parseInt(adultsEl.value||0)+parseInt(childrenEl.value||0)+parseInt(infantsEl.value||0));
+
+  const getNights = ()=> {
+    const days = selectedPackage?.days ? parseInt(selectedPackage.days) : (parseInt(totalDaysInput.value)||0);
+    return Math.max(1, (days||1) - 1); // nights = days-1 (min 1)
+  }
+
+  function recalc(){
+    const people = getTotalPeople();
+    const days = selectedPackage?.days ? parseInt(selectedPackage.days) : 0;
+    const nights = getNights();
+
+    // Base
+    const basePerPerson = selectedPackage?.basePricePerPerson || priceData?.basePricePerPerson || 0;
+    const baseCost = basePerPerson * people * (days||1);
+
+    // Hotel
+    const hotelType = hotelTypeSelect.value;
+    const hotelPerNightPerPerson = (priceData?.hotelTypes?.[hotelType]) || 0;
+    const hotelCost = hotelPerNightPerPerson * nights * people;
+
+    // Rooms
+    let roomsCost = 0;
+    roomCountsContainer.querySelectorAll('input[data-room-type]').forEach(input=>{
+      const roomType = input.getAttribute('data-room-type');
+      const count = parseInt(input.value||0);
+      const rate = priceData?.roomTypes?.[roomType] || 0;
+      roomsCost += rate * count * nights;
+    });
+
+    // Vehicle
+    const vCat = vehicleCategorySelect.value;
+    const vType = vehicleTypeSelect.value;
+    const vRate = (vehiclePrices?.[vCat]?.[vType]) || 0;
+    const vehicleCost = vRate * nights;
+
+    const total = baseCost + hotelCost + roomsCost + vehicleCost;
+
+    // write summary
+    summaryPackageName.textContent = selectedPackage ? `${selectedPackage.title || selectedPackage.name || 'Selected Package'} • ${days||0} days` : 'No package selected';
+    summaryPersonsSpan.textContent = people;
+    summaryDaysSpan.textContent = days||0;
+    lineBase.textContent = fmt(baseCost);
+    lineHotel.textContent = fmt(hotelCost);
+    lineRooms.textContent = fmt(roomsCost);
+    lineVehicle.textContent = fmt(vehicleCost);
+    summaryTotal.textContent = fmt(total);
+
+    // also build review if on final step
+    if(currentStep === 7){
+      renderReview({people, days, nights, baseCost, hotelCost, roomsCost, vehicleCost, total});
+    }
+  }
+
+  function renderReview(parts){
+    const people = getTotalPeople();
+    const selRooms = Array.from(roomCountsContainer.querySelectorAll('input[data-room-type]'))
+      .filter(i=>+i.value>0).map(i=>`${i.getAttribute('data-room-type')}: ${i.value}`)
+      .join(', ') || 'None';
+
+    const html = `
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-2">Travel</h6>
+            <div><strong>Package:</strong> ${selectedPackage?.title || selectedPackage?.name || ''}</div>
+            <div><strong>Days:</strong> ${parts.days}</div>
+            <div><strong>Departure Date:</strong> ${departureDate.value || '-'}</div>
+            <div><strong>Airport:</strong> ${document.getElementById('departureAirport').value || '-'}</div>
+            <div><strong>Travelers:</strong> ${people} (A:${adultsEl.value} C:${childrenEl.value} I:${infantsEl.value})</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-2">Stay & Transport</h6>
+            <div><strong>Hotel Type:</strong> ${hotelTypeSelect.value || '-'}</div>
+            <div><strong>Rooms:</strong> ${selRooms}</div>
+            <div><strong>Vehicle:</strong> ${(vehicleCategorySelect.value||'-')} ${vehicleTypeSelect.value? ('/ '+vehicleTypeSelect.value):''}</div>
+            <div><strong>Meals:</strong> ${document.getElementById('mealPref').value || '-'}</div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="border rounded p-3">
+            <h6 class="mb-2">Price Breakdown</h6>
+            <div class="line-item"><span>Base Tour</span><span>${lineBase.textContent}</span></div>
+            <div class="line-item"><span>Hotel</span><span>${lineHotel.textContent}</span></div>
+            <div class="line-item"><span>Rooms</span><span>${lineRooms.textContent}</span></div>
+            <div class="line-item"><span>Vehicle</span><span>${lineVehicle.textContent}</span></div>
+            <div class="divider"></div>
+            <div class="d-flex justify-content-between"><strong>Total</strong><strong>${summaryTotal.textContent}</strong></div>
+          </div>
+        </div>
+      </div>`;
+    reviewBlock.innerHTML = html;
+  }
+
+  // ===== Step nav =====
+  function showStep(n){
+    currentStep = n;
+    steps.forEach((s,i)=> s.classList.toggle('active', i===n));
+    progressItems.forEach((li,i)=> li.classList.toggle('active', i<=n));
+    recalc();
+  }
+  document.addEventListener('click', (e)=>{
+    if(e.target.classList.contains('nextBtn')){
+      e.preventDefault();
+      // basic validation for visible step
+      const visible = steps[currentStep];
+      const requireds = visible.querySelectorAll('[required]');
+      for(const el of requireds){ if(el.offsetParent!==null && !el.value){ el.reportValidity(); return; }}
+      showStep(Math.min(currentStep+1, steps.length-1));
+    }
+    if(e.target.classList.contains('prevBtn')){
+      e.preventDefault();
+      showStep(Math.max(currentStep-1,0));
+    }
+  });
+
+
+
+
+  
+
+  // ===== Load pricing + packages =====
+  async function loadPrices(){
+    const tourSnap = await getDoc(doc(db,'tourPrices','defaultPrices'));
+    if(tourSnap.exists()) priceData = tourSnap.data();
+    else alert('Price data not found!');
+
+    const vehSnap = await getDoc(doc(db,'vehiclePrices','defaultVehicles'));
+    if(vehSnap.exists()) vehiclePrices = vehSnap.data();
+    else alert('Vehicle prices not found!');
+
+    setupRoomInputs();
+  }
+
+  async function loadPackages(){
+    packages = [];
+    const snap = await getDocs(collection(db,'tourPackages'));
+    snap.forEach(docu=> packages.push({ id: docu.id, ...docu.data() }));
+    renderPackages();
+  }
+
+function renderPackages(){
+  packagesGrid.innerHTML = '';
+
+  if (!packages.length) {
+    packagesGrid.innerHTML = '<div class="col-12 text-center text-muted">No packages found.</div>';
+    return;
+  }
+
+  // If packageId provided in URL, only render that package by id (exact match).
+  let listToRender = packages;
+  if (selectedPackageId) {
+    listToRender = packages.filter(p => String(p.id) === String(selectedPackageId));
+    // Optionally show a message if not found
+    if (!listToRender.length) {
+      packagesGrid.innerHTML = '<div class="col-12 text-center text-muted">Selected package not found.</div>';
+      return;
+    }
+    // Disable search so user doesn't filter it out
+    const pkgSearchInput = document.getElementById('pkgSearch');
+    if (pkgSearchInput) {
+      pkgSearchInput.value = '';
+      pkgSearchInput.disabled = true;
+      pkgSearchInput.placeholder = 'Showing selected package';
+    }
+  } else {
+    // ensure search enabled in normal mode
+    const pkgSearchInput = document.getElementById('pkgSearch');
+    if (pkgSearchInput) {
+      pkgSearchInput.disabled = false;
+      pkgSearchInput.placeholder = 'Search packages...';
+    }
+  }
+
+  listToRender.forEach(pkg => {
+    const isSelected = selectedPackageId && String(pkg.id) === String(selectedPackageId);
+
+    const col = document.createElement('div');
+    col.className = 'col-md-6 col-lg-4';
+    col.innerHTML = `
+      <div class="card pkg-card h-100 ${isSelected ? 'border border-primary' : ''}">
+        ${pkg.imageUrl ? `<img src="${pkg.imageUrl}" class="w-100" alt="${pkg.title||pkg.name}">` : ''}
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <h6 class="mb-0">
+              <a href="packagecatalog.html?packageId=${pkg.id}" class="text-decoration-none" target="_blank">
+                ${pkg.title||pkg.name||'Tour Package'}
+              </a>
+            </h6>
+            <span class="pkg-chip">${pkg.days||'-'} days</span>
+          </div>
+          <div class="text-muted small mb-2">${pkg.country||pkg.location||''}</div>
+          <p class="small mb-2" style="min-height:40px;">
+            ${(pkg.shortDescription||pkg.description||'').toString().slice(0,100)}
+            ${(pkg.description && pkg.description.length>100)?'…':''}
+          </p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">${fmt(pkg.basePricePerPerson || priceData?.basePricePerPerson || 0)} / person</span>
+            <button type="button" class="btn btn-sm btn-outline-primary select-pkg" data-id="${pkg.id}">
+              <i class="fa fa-check me-1"></i>Select
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    packagesGrid.appendChild(col);
+
+    // Auto-select when this is the packageId passed in the URL
+    if (isSelected) {
+      selectedPackage = pkg;
+      totalDaysInput.value = pkg.days || '';
+      summaryPackageName.textContent = `${pkg.title || pkg.name} • ${pkg.days || 0} days`;
+      pkgNextBtn.disabled = false;
+      recalc();
+    }
+  });
+}
+
+
+
+const pkgSearchInput = document.getElementById('pkgSearch');
+
+pkgSearchInput.addEventListener('input', () => {
+  const term = pkgSearchInput.value.toLowerCase();
+
+  packagesGrid.querySelectorAll('.col-md-6, .col-md-4').forEach(col => {
+    const title = col.querySelector('h5, h6')?.textContent.toLowerCase() ?? '';
+    const days = col.querySelector('.days')?.textContent ?? '';
+    const places = col.querySelector('.places')?.textContent.toLowerCase() ?? '';
+
+    // Check if term is in title, days (number), or any place
+    const match = title.includes(term) || days.includes(term) || places.includes(term);
+    col.style.display = match ? '' : 'none';
+  });
+});
+
+
+
+
+  packagesGrid.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.select-pkg');
+    if(!btn) return;
+    const id = btn.getAttribute('data-id');
+    selectedPackage = packages.find(p=>p.id===id) || null;
+    if(selectedPackage){
+      document.querySelectorAll('.select-pkg').forEach(b=> b.classList.remove('btn-primary'));
+      btn.classList.add('btn-primary');
+      totalDaysInput.value = selectedPackage.days || '';
+      summaryPackageName.textContent = `${selectedPackage.title||selectedPackage.name} • ${selectedPackage.days||0} days`;
+      document.getElementById('pkgNext').disabled = false;
+      recalc();
+    }
+  });
+
+  // ===== Room inputs based on priceData.roomTypes =====
+  function setupRoomInputs(){
+    roomCountsContainer.innerHTML = '';
+    if(!priceData?.roomTypes){return}
+    Object.keys(priceData.roomTypes).forEach(roomType=>{
+      const div = document.createElement('div');
+      div.className = 'col-6 col-md-4 col-lg-3';
+      div.innerHTML = `
+        <label class="form-label">${roomType} Qty</label>
+        <input type="number" min="0" value="0" class="form-control" data-room-type="${roomType}">
+        <div class="form-text">${fmt(priceData.roomTypes[roomType])} / night</div>`;
+      roomCountsContainer.appendChild(div);
+    });
+  }
+
+  // ===== Vehicle types filtering =====
+  function updateVehicleTypes(){
+    const category = vehicleCategorySelect.value;
+    const totalPeople = getTotalPeople();
+    if(!category || !vehiclePrices){ vehicleTypeSelect.innerHTML = '<option value="">Select Vehicle</option>'; vehicleTypeSelect.disabled = true; return; }
+
+    let suggested = [];
+    if(totalPeople <= 3) suggested = ['Tuk Tuk','Car'];
+    else if(totalPeople <= 8) suggested = ['Van','Bus'];
+    else suggested = ['Bus'];
+
+    let options = Object.keys(vehiclePrices[category]||{});
+    if(category==='luxury') options = options.filter(v=> v!=='Tuk Tuk');
+    options = options.filter(v=> suggested.includes(v));
+
+    vehicleTypeSelect.innerHTML = '<option value="">Select Vehicle</option>' + options.map(v=>`<option value="${v}">${v}</option>`).join('');
+    vehicleTypeSelect.disabled = options.length===0;
+  }
+
+  // ===== Events to recalc =====
+  [adultsEl, childrenEl, infantsEl, hotelTypeSelect, vehicleCategorySelect, vehicleTypeSelect, departureDate].forEach(el=>{
+    el?.addEventListener('input', ()=>{ if(el===vehicleCategorySelect) updateVehicleTypes(); recalc(); });
+    el?.addEventListener('change', ()=>{ if(el===vehicleCategorySelect) updateVehicleTypes(); recalc(); });
+  });
+  roomCountsContainer.addEventListener('input', (e)=>{ if(e.target.matches('input[data-room-type]')) recalc(); });
+
+
+
+
+
+  
+
+// ===== Submit form =====
+  document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const departure = departureDate.value;
+  const pkgDays = parseInt(summaryDaysSpan.textContent) || 0;
+  const returnDate = new Date(departure);
+  returnDate.setDate(returnDate.getDate() + (pkgDays - 1));
+
+  const bookingData = {
+    // required old fields
+    adults: parseInt(adultsEl.value) || 0,
+    children: parseInt(childrenEl.value) || 0,
+    infants: parseInt(infantsEl.value) || 0,
+    departureDate: departure,
+    returnDate: returnDate.toISOString().split("T")[0],
+    fullName: document.getElementById("fullNameInput").value,
+    hotelType: hotelTypeSelect.value,
+    totalCost: summaryTotal.textContent,
+    totalDays: String(pkgDays),
+    vehicleCategory: vehicleCategorySelect.value,
+    vehicleType: vehicleTypeSelect.value,
+    submittedAt: serverTimestamp(),
+
+    // extra new fields
+    packageId: selectedPackage?.id || "",
+    packageName: selectedPackage?.title || selectedPackage?.name || "",
+    mealPref: document.getElementById("mealPref").value,
+    specialReq: document.getElementById("specialReq").value,
+
+    roomCounts: Object.fromEntries(
+      Array.from(roomCountsContainer.querySelectorAll("input[data-room-type]"))
+        .map(input => [input.getAttribute("data-room-type"), parseInt(input.value) || 0])
+    ),
+
+    priceBreakdown: {
+      base: parseFloat(lineBase.textContent.replace(/[^0-9.]/g, "")) || 0,
+      hotel: parseFloat(lineHotel.textContent.replace(/[^0-9.]/g, "")) || 0,
+      rooms: parseFloat(lineRooms.textContent.replace(/[^0-9.]/g, "")) || 0,
+      vehicle: parseFloat(lineVehicle.textContent.replace(/[^0-9.]/g, "")) || 0,
+      total: parseFloat(summaryTotal.textContent.replace(/[^0-9.]/g, "")) || 0
+    },
+
+    payment: {
+      method: document.getElementById("paymentMethod").value,
+      billingAddress: document.getElementById("billingAddress").value
+    }
+  };
+
+  try {
+    await addDoc(collection(db, "bookings"), bookingData);
+    alert("✅ Booking submitted successfully!");
+     window.location.href = "userhome.html";  // redirect after success
+  } catch (error) {
+    console.error("❌ Error saving booking:", error);
+    alert("Failed to save booking. Please try again.");
+  }
+});
+
+
+
+
+
+  // ===== Init on load =====
+  await loadPrices();
+  await loadPackages();
+  showStep(0);
+  recalc();
+</script>
+</body>
+</html>

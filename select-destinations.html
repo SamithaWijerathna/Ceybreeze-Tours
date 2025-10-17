@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Your Destinations</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+  background: linear-gradient(120deg, #f0f4f8, #d9e2ec);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+  font-weight: 700;
+  color: #1c3d5a;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.package-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  background: #ffffff;
+  padding-bottom: 10px; /* for radio button space */
+}
+.package-card:hover { 
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.package-card img { 
+  width: 100%; 
+  height: 200px; 
+  object-fit: cover; 
+  transition: transform 0.3s;
+}
+.package-card:hover img { transform: scale(1.05); }
+
+.package-info {
+  padding: 12px 15px;
+  text-align: left;
+}
+.package-info h5 { margin:0; font-size:1.2rem; }
+.package-info p { margin:2px 0; font-size:0.9rem; }
+
+.package-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.package-badges span {
+  background: rgba(28,61,90,0.15);
+  color: #1c3d5a;
+  font-size: 0.75rem;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+.modal-body {
+  background: linear-gradient(120deg, #8d8e8f, #d9e2ec);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.modal-img {
+  border-radius: 12px;
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain; /* shows full image */
+}
+
+.package-radio {
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Welcome, <span id="userName"></span>!</h2>
+  <p class="text-center">Your total trip days: <strong><span id="totalDaysDisplay"></span></strong></p>
+  <div class="row" id="packagesGrid"></div>
+  <div class="text-center">
+    <button id="submitBooking" class="btn btn-success mt-4">Submit Booking</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="packageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalTitle">Package Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Package ID:</strong> <span id="modalPackageID"></span></p>
+        <p><strong>Days:</strong> <span id="modalDays"></span></p>
+        <p><strong>Places:</strong> <span id="modalPlaces"></span></p>
+        <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+        <div id="carouselContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase + Bootstrap -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const packagesGrid = document.getElementById("packagesGrid");
+const packageModal = new bootstrap.Modal(document.getElementById('packageModal'));
+const modalTitle = document.getElementById("modalTitle");
+const modalPackageID = document.getElementById("modalPackageID");
+const modalDays = document.getElementById("modalDays");
+const modalPlaces = document.getElementById("modalPlaces");
+const modalDescription = document.getElementById("modalDescription");
+const carouselContainer = document.getElementById("carouselContainer");
+
+// Booking info
+const bookingInfo = JSON.parse(localStorage.getItem("bookingInfo"));
+const totalDays = bookingInfo ? parseInt(bookingInfo.totalDays) : null;
+const fullName = bookingInfo ? bookingInfo.fullName : "Guest";
+
+document.getElementById("userName").textContent = fullName;
+document.getElementById("totalDaysDisplay").textContent = bookingInfo ? bookingInfo.totalDays : "-";
+
+// Load packages
+async function loadPackages() {
+  if (!totalDays) return;
+
+  const snapshot = await db.collection("tourPackages").where("days", "==", totalDays).get();
+  packagesGrid.innerHTML = "";
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const col = document.createElement("div");
+    col.className = "col-md-4";
+
+    const badges = data.places ? data.places.map(place => `<span>${place}</span>`).join('') : '';
+
+    col.innerHTML = `
+      <div class="package-card">
+        <img src="${data.photos && data.photos[0] ? data.photos[0] : 'https://via.placeholder.com/400x200?text=No+Image'}" alt="Package Image">
+        <div class="package-info">
+          <h5>${data.title || "No Title"}</h5>
+          <p><strong>ID:</strong> ${data.packageID || "-"}</p>
+          <p><strong>Days:</strong> ${data.days || "-"}</p>
+          <div class="package-badges">${badges}</div>
+          <div class="form-check package-radio">
+            <input class="form-check-input" type="radio" name="selectedPackage" value="${data.packageID}">
+            <label class="form-check-label">Select this package</label>
+          </div>
+        </div>
+      </div>
+    `;
+
+    col.querySelector('.package-card').addEventListener('click', () => {
+      modalTitle.textContent = data.title || "-";
+      modalPackageID.textContent = data.packageID || "-";
+      modalDays.textContent = data.days || "-";
+      modalPlaces.textContent = data.places ? data.places.join(", ") : "-";
+      modalDescription.textContent = data.description || "-";
+
+      if (data.photos && data.photos.length > 0) {
+        carouselContainer.innerHTML = `
+          <div id="packageCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              ${data.photos.map((_, idx) => `
+                <button type="button" data-bs-target="#packageCarousel" data-bs-slide-to="${idx}" ${idx===0 ? 'class="active"' : ''}></button>
+              `).join('')}
+            </div>
+            <div class="carousel-inner">
+              ${data.photos.map((url, idx) => `
+                <div class="carousel-item ${idx===0 ? 'active' : ''}">
+                  <img src="${url}" class="d-block w-100 modal-img" alt="${data.title}">
+                </div>
+              `).join('')}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#packageCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#packageCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        `;
+        const carouselEl = document.getElementById('packageCarousel');
+        new bootstrap.Carousel(carouselEl, { interval: 3000, ride: 'carousel', pause: false });
+      } else {
+        carouselContainer.innerHTML = "<p>No images available</p>";
+      }
+
+      packageModal.show();
+    });
+
+    packagesGrid.appendChild(col);
+  });
+}
+
+loadPackages();
+
+// Submit Booking
+document.getElementById("submitBooking").addEventListener("click", async () => {
+  const selectedRadio = document.querySelector("input[name='selectedPackage']:checked");
+  if (!selectedRadio) { alert("Please select a package!"); return; }
+  const selectedPackageID = selectedRadio.value;
+
+  const snapshot = await db.collection("bookings").where("fullName","==",fullName).get();
+  if (!snapshot.empty) {
+    const bookingDoc = snapshot.docs[0];
+    await db.collection("bookings").doc(bookingDoc.id).update({ packageID: selectedPackageID });
+  } else {
+    await db.collection("bookings").add({ fullName, packageID: selectedPackageID });
+  }
+
+  window.location.href = "userhome.html";
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firebase Sign Up</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Particles.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <style>
+    /* Animated gradient background */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #1a2a6c, #b21f1f, #fdbb2d, #6a11cb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Segoe UI', sans-serif;
+      position: relative;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* Particles container */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Centered signup card */
+    .signup-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .signup-card {
+      max-width: 500px;
+      width: 100%;
+      padding: 2rem;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      color: #fff;
+    }
+
+    .signup-card h3 {
+      color: #fff;
+    }
+
+    .form-control {
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      color: #fff;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.35);
+      color: #fff;
+      box-shadow: none;
+      border: none;
+    }
+
+    ::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-success {
+      background: #f8b400;
+      border: none;
+      transition: all 0.3s ease;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-success:hover {
+      background: #ffc107;
+      color: #000;
+    }
+
+    a {
+      color: #fff;
+    }
+
+    a:hover {
+      color: #f8b400;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+      .signup-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles background -->
+  <div id="particles-js"></div>
+
+  <!-- Centered signup form -->
+  <div class="container d-flex justify-content-center align-items-center vh-100 signup-container">
+    <div class="signup-card card shadow p-4">
+      <h3 class="text-center mb-4">Sign Up</h3>
+
+      <form id="signup-form">
+        <div class="row mb-3">
+          <div class="col">
+            <label for="firstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="firstName" placeholder="First name" required>
+          </div>
+          <div class="col">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="lastName" placeholder="Last name" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="Choose a username" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label">Confirm Password</label>
+          <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm password" required>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Sign Up</button>
+      </form>
+ <button id="googleSignUp" class="btn btn-danger w-100 mt-3">
+  Sign Up with Google
+</button>
+      <div class="text-center mt-3">
+        <small>Already have an account? <a href="login.html">Login</a></small>
+      </div>
+   
+    </div>
+  </div>
+
+
+
+
+  <!-- Firebase JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+      authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+      projectId: "ceybreeze-tours-3443d",
+      storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+      messagingSenderId: "94148437936",
+      appId: "1:94148437936:web:4de667cfc522c502c05875",
+      measurementId: "G-JB0916EC12"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    document.getElementById("signup-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        alert("❌ Passwords do not match!");
+        return;
+      }
+
+      try {
+        const usernameSnapshot = await db.collection("users").where("username", "==", username).get();
+        if (!usernameSnapshot.empty) {
+          alert("❌ Username is already taken!");
+          return;
+        }
+
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        await user.updateProfile({ displayName: `${firstName} ${lastName}` });
+
+        await db.collection("users").doc(user.uid).set({
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        window.location.href = "login.html";
+
+      } catch (error) {
+        console.error("Error signing up:", error);
+        alert("❌ " + error.message);
+      }
+    });
+
+    // Initialize particles.js
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 120, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+        "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "repulse": { "distance": 100, "duration": 0.4 },
+          "push": { "particles_nb": 4 }
+        }
+      },
+      "retina_detect": true
+    });
+
+
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+document.getElementById("googleSignUp").addEventListener("click", async () => {
+  try {
+    const result = await firebase.auth().signInWithPopup(googleProvider);
+    const user = result.user;
+
+    // Save user data in Firestore (same as normal signup)
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    if (!userDoc.exists) {
+      await db.collection("users").doc(user.uid).set({
+        firstName: user.displayName.split(" ")[0] || "",
+        lastName: user.displayName.split(" ")[1] || "",
+        username: user.displayName.replace(/\s+/g, "").toLowerCase(),
+        email: user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    window.location.href = "login.html"; // Redirect after signup
+  } catch (error) {
+    console.error(error);
+    alert("❌ " + error.message);
+  }
+});
+
+  </script>
+
+</body>
+</html>

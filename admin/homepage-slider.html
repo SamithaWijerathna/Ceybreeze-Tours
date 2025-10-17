@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Homepage Slider</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+body { display:flex; min-height:100vh; overflow:auto; }
+.sidebar { min-width:220px; background:#212529; color:white; }
+.sidebar a { display:flex; align-items:center; color:white; padding:12px; text-decoration:none; border-radius:5px; margin-bottom:5px; }
+.sidebar a:hover { background:#495057; }
+.sidebar a i { margin-right:10px; }
+.sidebar h4 { color:#f8f9fa; margin-bottom:20px; }
+.main-content { flex:1; padding:20px; background:#f8f9fa; overflow-y:auto; }
+.card img { max-height:150px; object-fit:cover; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar p-3">
+  <h4><i class="fas fa-cogs"></i> Admin Panel</h4><hr>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+  <a href="tour-packages.html"><i class="fas fa-suitcase-rolling"></i> Tour Packages</a>
+  <a href="prices-upgrade.html"><i class="fas fa-tags"></i> Prices Upgrade</a>
+  <a href="homepage-slider.html"><i class="fas fa-images"></i> Homepage Slider</a>
+  <a href="users.html"><i class="fas fa-users"></i> Users</a>
+  <a href="contacts.html"><i class="fas fa-envelope"></i> Contact Messages</a>
+  <a href="newsletter.html"><i class="fas fa-paper-plane"></i> NewsLetter</a>
+  <a href="offers.html" class="active-page"><i class="fas fa-gift"></i> Offers</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <h2><i class="fas fa-images"></i> Homepage Slider</h2>
+  <p class="text-muted">Upload and manage homepage slider images here.</p>
+
+  <!-- Upload Form -->
+  <div class="card p-3 shadow-sm mb-4">
+    <h5>Upload New Image</h5>
+    <input type="file" id="imageInput" accept="image/*" class="form-control mb-2"/>
+    <button id="uploadBtn" class="btn btn-primary"><i class="fas fa-upload"></i> Upload</button>
+    <div id="uploadStatus" class="mt-2 text-muted"></div>
+  </div>
+
+  <!-- Uploaded Images -->
+  <div class="row" id="imageGallery"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Elements
+const uploadBtn = document.getElementById("uploadBtn");
+const imageInput = document.getElementById("imageInput");
+const uploadStatus = document.getElementById("uploadStatus");
+const imageGallery = document.getElementById("imageGallery");
+
+// Upload Image
+uploadBtn.addEventListener("click", async () => {
+  const file = imageInput.files[0];
+  if (!file) return alert("Please select an image!");
+
+  const filePath = `slider/${Date.now()}_${file.name}`;
+  const storageRef = storage.ref(filePath);
+
+  uploadStatus.textContent = "Uploading...";
+  try {
+    await storageRef.put(file);
+    const url = await storageRef.getDownloadURL();
+
+    await db.collection("homepageSlider").add({
+      url,
+      path: filePath,
+      uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    uploadStatus.textContent = "Upload successful!";
+    imageInput.value = "";
+    loadImages();
+  } catch (error) {
+    console.error(error);
+    uploadStatus.textContent = "Upload failed!";
+  }
+});
+
+// Load Images (from Firestore + Storage)
+async function loadImages() {
+  imageGallery.innerHTML = "";
+  const snapshot = await db.collection("homepageSlider").orderBy("uploadedAt","desc").get();
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const col = document.createElement("div");
+    col.className = "col-md-3 mb-3";
+    col.innerHTML = `
+      <div class="card shadow-sm">
+        <img src="${data.url}" class="card-img-top" alt="slider image"/>
+        <div class="card-body text-center">
+          <button class="btn btn-danger btn-sm" onclick="deleteImage('${doc.id}','${data.path}')">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    `;
+    imageGallery.appendChild(col);
+  });
+}
+
+// Delete Image
+async function deleteImage(docId, path) {
+  if (!confirm("Delete this image?")) return;
+  try {
+    await storage.ref(path).delete();
+    await db.collection("homepageSlider").doc(docId).delete();
+    loadImages();
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete image.");
+  }
+}
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+  e.preventDefault();
+  if (confirm("Are you sure you want to log out?")) {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "adminlogin.html";
+  }
+});
+
+// Initialize
+loadImages();
+</script>
+</body>
+</html>

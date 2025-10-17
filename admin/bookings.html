@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+body { display:flex; min-height:100vh; overflow:auto; }
+.sidebar { min-width:220px; background:#212529; color:white; }
+.sidebar a { display:flex; align-items:center; color:white; padding:12px; text-decoration:none; border-radius:5px; margin-bottom:5px; }
+.sidebar a:hover { background:#495057; }
+.sidebar a i { margin-right:10px; }
+.sidebar h4 { color:#f8f9fa; margin-bottom:20px; }
+.main-content { flex:1; padding:20px; background:#f8f9fa; overflow-y:auto; }
+.card { min-height:120px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar p-3">
+  <h4><i class="fas fa-cogs"></i> Admin Panel</h4><hr>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+  <a href="tour-packages.html"><i class="fas fa-suitcase-rolling"></i> Tour Packages</a>
+  <a href="prices-upgrade.html"><i class="fas fa-tags"></i> Prices Upgrade</a>
+  <a href="homepage-slider.html"><i class="fas fa-images"></i> Homepage Slider</a>
+  <a href="users.html"><i class="fas fa-users"></i> Users</a>
+  <a href="contacts.html"><i class="fas fa-envelope"></i> Contact Messages</a>
+  <a href="newsletter.html"><i class="fas fa-paper-plane"></i> NewsLetter</a>
+  <a href="offers.html" class="active-page"><i class="fas fa-gift"></i> Offers</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+  <h2>Confirmed Bookings</h2>
+  <ul class="list-group mb-4" id="confirmedList"></ul>
+
+  <h2>Pending Bookings</h2>
+  <ul class="list-group mb-4" id="pendingList"></ul>
+
+  <h2>Cancelled Bookings</h2>
+  <ul class="list-group mb-4" id="cancelledList"></ul>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="receiptModalImg" src="" class="img-fluid" alt="Receipt Image">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Booking Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="bookingModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.appspot.com",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage(); // ✅ add this
+
+const confirmedList = document.getElementById("confirmedList");
+const pendingList = document.getElementById("pendingList");
+const cancelledList = document.getElementById("cancelledList");
+
+// --- Load Confirmed Bookings ---
+db.collection("confirmedbookings").onSnapshot(snapshot => {
+  confirmedList.innerHTML = snapshot.empty ? '<li class="list-group-item">No confirmed bookings</li>' : '';
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const fullName = data.fullName || 'N/A';
+    const evidenceUrl = data.evidenceUrl || null;
+
+    confirmedList.innerHTML += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${fullName}</span>
+        <div>
+          ${evidenceUrl ? `<button class="btn btn-primary btn-sm me-2" onclick="viewReceipt('${evidenceUrl}')">View Receipt</button>` : ''}
+          <button class="btn btn-info btn-sm me-2" onclick="viewBooking('${doc.id}')">View Booking</button>
+          <button class="btn btn-success btn-sm" onclick="markCompleted('${doc.id}')">Mark as Completed</button>
+        </div>
+      </li>
+    `;
+  });
+});
+
+// --- Load Pending Bookings ---
+// --- Load Pending Bookings ---
+async function loadPendingBookings() {
+  pendingList.innerHTML = '<li class="list-group-item text-info">⏳ Loading pending bookings...</li>';
+
+  try {
+    const snapshot = await db.collection("bookings").get();
+    if (snapshot.empty) {
+      pendingList.innerHTML = '<li class="list-group-item">No pending bookings</li>';
+      return;
+    }
+
+    pendingList.innerHTML = ''; // clear list
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      const fullName = data.fullName || "N/A";
+      const docId = doc.id;
+      const evidenceUrl = data.evidenceUrl || null;
+
+      // Always show View Booking
+      const viewBtn = `<button class="btn btn-info btn-sm me-2" onclick="viewBookingPending('${docId}')">View Booking</button>`;
+
+      // Only show Confirm if evidenceUrl exists
+      const confirmBtn = evidenceUrl
+        ? `<button class="btn btn-success btn-sm" onclick="confirmBooking('${docId}')">Confirm</button>`
+        : '';
+
+      // Show View Receipt if evidenceUrl exists
+      const receiptBtn = evidenceUrl
+        ? `<button class="btn btn-primary btn-sm me-2" onclick="viewReceipt('${evidenceUrl}')">View Receipt</button>`
+        : '';
+
+      pendingList.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>${fullName}</span>
+          <div>
+            ${viewBtn}
+            ${receiptBtn}
+            ${confirmBtn}
+          </div>
+        </li>
+      `;
+    }
+
+  } catch (err) {
+    console.error("❌ Error loading pending bookings:", err);
+    pendingList.innerHTML = '<li class="list-group-item text-danger">Failed to load pending bookings</li>';
+  }
+}
+
+// --- View Pending Booking Details ---
+async function viewBookingPending(docId) {
+  const docRef = db.collection("bookings").doc(docId);
+  const docSnap = await docRef.get();
+  if (!docSnap.exists) return alert("Booking not found.");
+  const data = docSnap.data();
+
+  let html = '<table class="table table-bordered">';
+  for (const key in data) {
+    if (key === 'evidenceUrl') continue;
+    html += `<tr><th>${key}</th><td>${data[key]}</td></tr>`;
+  }
+  html += '</table>';
+
+  document.getElementById('bookingModalBody').innerHTML = html;
+  const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+  bookingModal.show();
+}
+
+
+
+// --- Show Receipt Modal ---
+function viewReceipt(url) {
+  const modalImg = document.getElementById('receiptModalImg');
+  modalImg.src = url;
+  const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+  receiptModal.show();
+}
+
+// --- View Booking Details ---
+async function viewBooking(docId) {
+  const docRef = db.collection("confirmedbookings").doc(docId);
+  const docSnap = await docRef.get();
+  if (!docSnap.exists) return alert("Booking not found.");
+  const data = docSnap.data();
+
+  let html = '<table class="table table-bordered">';
+  for (const key in data) {
+    if (key === 'evidenceUrl') continue;
+    html += `<tr><th>${key}</th><td>${data[key]}</td></tr>`;
+  }
+  html += '</table>';
+
+  document.getElementById('bookingModalBody').innerHTML = html;
+  const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+  bookingModal.show();
+}
+
+// --- Mark as Completed (robust, logs, fallback + server fallback request) ---
+async function markCompleted(docId) {
+  const ok = confirm("Are you sure you want to mark this booking as completed?");
+  if (!ok) return;
+
+  try {
+    const docRef = db.collection("confirmedbookings").doc(docId);
+    const snap = await docRef.get();
+    if (!snap.exists) return alert("Booking not found.");
+    const data = snap.data();
+    console.log('[markCompleted] booking data:', data);
+
+    // 1) Move to completedbookings
+    await db.collection("completedbookings").doc(docId).set(data);
+    console.log('[markCompleted] copied to completedbookings');
+
+    // 2) Try client-side storage deletion (best-effort). If anything fails, record deletion request.
+    let deletionSucceeded = false;
+    let deletionDetail = '';
+
+    try {
+      if (data.evidenceUrl) {
+        const res = await deleteUserFolderByEvidenceUrl(data.evidenceUrl);
+        deletionSucceeded = true;
+        deletionDetail = res.detail;
+      } else if (data.fullName) {
+        // try delete folder named by fullName
+        await deleteStorageFolderByPrefix(data.fullName);
+        deletionSucceeded = true;
+        deletionDetail = data.fullName;
+      } else {
+        console.log('[markCompleted] no evidenceUrl or fullName found — nothing to delete in Storage');
+      }
+    } catch (storageErr) {
+      console.warn('[markCompleted] storage deletion failed (will enqueue server-side):', storageErr);
+      deletionSucceeded = false;
+      deletionDetail = storageErr.message || 'storage deletion failed';
+    }
+
+    // If storage delete failed, create a deletionRequests entry so server/Admin can clean it
+    if (!deletionSucceeded) {
+      try {
+        await db.collection('deletionRequests').add({
+          docId,
+          evidenceUrl: data.evidenceUrl || null,
+          folderPathHint: data.fullName || null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          processed: false
+        });
+        console.log('[markCompleted] created deletionRequests entry');
+      } catch (reqErr) {
+        console.error('[markCompleted] failed to create deletionRequests entry:', reqErr);
+      }
+    }
+
+    // 3) Remove from confirmedbookings
+    await docRef.delete();
+    console.log('[markCompleted] removed document from confirmedbookings');
+
+    alert("Booking marked as completed!" + (deletionSucceeded ? " Evidence deleted." : " Evidence scheduled for server deletion."));
+
+    // refresh UI lists (you already have snapshot listener on confirmedbookings)
+    loadPendingBookings(); // pending list might need refresh
+    // if you had a loadConfirmedBookings() call, call it too — but confirmed list uses realtime onSnapshot so it will update.
+  } catch (err) {
+    console.error("❌ Error in markCompleted:", err);
+    alert("Failed to mark as completed. Check console for details.");
+  }
+}
+
+
+
+
+
+// --- Confirm Pending Booking ---
+async function confirmBooking(docId) {
+  const confirmed = confirm("Are you sure you want to confirm this booking?");
+  if (!confirmed) return;
+
+  try {
+    // Get the pending booking data
+    const docRef = db.collection("bookings").doc(docId);
+    const docSnap = await docRef.get();
+    if (!docSnap.exists) return alert("Booking not found.");
+
+    const data = docSnap.data();
+
+    // Move it to confirmedbookings
+    await db.collection("confirmedbookings").doc(docId).set(data);
+
+    // Delete from pending bookings
+    await docRef.delete();
+
+    alert("Booking confirmed successfully!");
+    
+    // Refresh pending bookings
+    loadPendingBookings();
+
+  } catch (err) {
+    console.error("❌ Error confirming booking:", err);
+    alert("Failed to confirm booking.");
+  }
+}
+
+
+// ===== Helpers for Storage deletion + fallback =====
+
+// Delete everything under a storage prefix (recursively)
+async function deleteStorageFolderByPrefix(prefix) {
+  // Ensure trailing slash for folder listing
+  if (!prefix.endsWith('/')) prefix = prefix + '/';
+  const folderRef = storage.ref().child(prefix);
+  console.log('[deleteStorageFolderByPrefix] listing prefix:', prefix);
+  const list = await folderRef.listAll(); // may throw if not permitted
+  // delete files in this prefix
+  for (const item of list.items) {
+    console.log('[deleteStorageFolderByPrefix] deleting file:', item.fullPath);
+    await item.delete();
+  }
+  // recursively delete sub-prefixes
+  for (const p of list.prefixes) {
+    await deleteStorageFolderByPrefix(p.fullPath);
+  }
+}
+
+// Given a downloadURL (https or gs://) infer folder and delete everything inside
+async function deleteUserFolderByEvidenceUrl(evidenceUrl) {
+  try {
+    console.log('[deleteUserFolderByEvidenceUrl] evidenceUrl:', evidenceUrl);
+    // Create a reference from the download URL
+    const fileRef = storage.refFromURL(evidenceUrl); // may throw if url invalid
+    console.log('[deleteUserFolderByEvidenceUrl] fileRef.fullPath:', fileRef.fullPath);
+    const fullPath = fileRef.fullPath || '';
+    const lastSlash = fullPath.lastIndexOf('/');
+    if (lastSlash === -1) {
+      // just delete single file
+      console.log('[deleteUserFolderByEvidenceUrl] deleting single file:', fullPath);
+      await fileRef.delete();
+      return { deleted: true, detail: fullPath };
+    }
+    // folder prefix (without trailing file)
+    const folderPath = fullPath.substring(0, lastSlash + 1); // include trailing slash
+    console.log('[deleteUserFolderByEvidenceUrl] inferred folderPath:', folderPath);
+    await deleteStorageFolderByPrefix(folderPath);
+    return { deleted: true, detail: folderPath };
+  } catch (err) {
+    console.error('[deleteUserFolderByEvidenceUrl] error:', err);
+    throw err;
+  }
+}
+
+
+
+
+// --- Load Cancelled Bookings ---
+db.collection("cancelledbooking").onSnapshot(snapshot => {
+  cancelledList.innerHTML = snapshot.empty ? '<li class="list-group-item">No cancelled bookings</li>' : '';
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const fullName = data.fullName || data.userName || 'N/A';
+    const photos = data.evidencePhotos || [];
+    const photosHtml = photos.length
+      ? photos.map(url => `<img src="${url}" class="preview-img d-block">`).join('')
+      : '<em>No photos uploaded</em>';
+
+    cancelledList.innerHTML += `
+      <li class="list-group-item">
+        <strong>${fullName}</strong><br>
+        ${photosHtml}
+      </li>
+    `;
+  });
+});
+
+
+// Logout functionality
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+  e.preventDefault(); // prevent default link behavior
+  if (confirm("Are you sure you want to log out?")) {
+    localStorage.removeItem("loggedInUser"); // clear logged-in user
+    window.location.href = "adminlogin.html"; // redirect to login page
+  }
+});
+
+// --- Initialize ---
+window.addEventListener("DOMContentLoaded", () => {
+  loadPendingBookings();
+});
+</script>
+</body>
+</html>

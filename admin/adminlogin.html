@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <style>
+    /* Gradient background animation */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #1a2a6c, #b21f1f, #fdbb2d, #6a11cb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      position: relative;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Particles container */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Centered login card */
+    .login-container {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      color: #fff;
+    }
+
+    .login-card h3 {
+      color: #fff;
+    }
+
+    .form-control {
+      background: rgba(255,255,255,0.25);
+      border: none;
+      color: #fff;
+    }
+
+    .form-control:focus {
+      background: rgba(255,255,255,0.35);
+      color: #fff;
+      box-shadow: none;
+      border: none;
+    }
+
+    ::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .btn-primary {
+      background: #f8b400;
+      border: none;
+      color: #000;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #ffc107;
+      color: #000;
+    }
+
+    #errorMsg {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 576px) {
+      .login-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles background -->
+  <div id="particles-js"></div>
+
+  <!-- Centered login form -->
+  <div class="login-container">
+    <div class="login-card card shadow">
+      <h3 class="text-center mb-4">Admin Login</h3>
+
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" required placeholder="admin or editor">
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <div id="errorMsg" class="text-danger"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase v10 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+      authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+      projectId: "ceybreeze-tours-3443d",
+      storageBucket: "ceybreeze-tours-3443d.appspot.com",
+      messagingSenderId: "94148437936",
+      appId: "1:94148437936:web:4de667cfc522c502c05875",
+      measurementId: "G-JB0916EC12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      try {
+        const docRef = doc(db, "users", username);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          errorMsg.style.display = "block";
+          errorMsg.textContent = "User not found!";
+          return;
+        }
+
+        const userData = docSnap.data();
+        if (userData.password === password) {
+          localStorage.setItem("loggedInUser", JSON.stringify({ username, role: userData.role }));
+          window.location.href = "dashboard.html";
+        } else {
+          errorMsg.style.display = "block";
+          errorMsg.textContent = "Incorrect password!";
+        }
+      } catch (err) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+
+  <!-- Initialize particles.js -->
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 120, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+        "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "repulse": { "distance": 100, "duration": 0.4 },
+          "push": { "particles_nb": 4 }
+        }
+      },
+      "retina_detect": true
+    });
+  </script>
+
+</body>
+</html>

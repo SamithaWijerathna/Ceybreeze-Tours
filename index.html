@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="images/favicon.png" type="">
+  <title>ceyBreeze Tours</title>
+
+  <!-- Bootstrap Core CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <!-- Owl Carousel -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <!-- Nice Select -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <!-- Font Awesome -->
+  <link href="css/font-awesome.min.css" rel="stylesheet" />
+  <!-- Custom Styles -->
+  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
+
+  <style>
+    /* Contact Form Gradient Card */
+    .contact-gradient-card {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      border: none;
+    }
+
+    .contact-gradient-card input,
+    .contact-gradient-card textarea {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+    }
+
+    .contact-gradient-card input::placeholder,
+    .contact-gradient-card textarea::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Button Hover Animation */
+    .btn-animated {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .btn-animated::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.4s ease;
+    }
+
+    .btn-animated:hover::after {
+      left: 0;
+    }
+
+    .btn-animated:hover {
+      color: #fff;
+      transform: scale(1.05);
+    }
+    /* Slider tweaks */
+.slider_section {
+  padding-top: 0; /* remove top padding */
+}
+
+.carousel-item img {
+  height: 700px;       /* adjust height as needed */
+  object-fit: cover;   /* keep aspect ratio and cover entire area */
+}
+
+/* Optional: make carousel controls slightly bigger */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-size: 2rem 2rem;
+}
+
+.header_section {
+  position: absolute;   /* place on top of slider */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;          /* keep above slider */
+  background: rgba(0,0,0,0.4); /* semi-transparent background for readability */
+}
+
+.header_section .navbar .nav-link,
+.header_section .navbar-brand,
+.header_section .user_option span,
+.header_section .user_option a {
+  color: #fff !important; /* make text visible over images */
+}
+.hero_area {
+  position: relative;   /* required for absolute header positioning */
+  padding-top: 0;
+}
+
+
+.box {
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.box:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.detail-box p {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  transition: max-height 0.3s;
+}
+
+.box:hover .detail-box p {
+  overflow-y: auto;   /* Scrollable on hover if needed */
+  max-height: 100px;  /* Adjust as needed */
+}
+
+/* Optional: scrollbar style */
+.detail-box p::-webkit-scrollbar {
+  width: 6px;
+}
+.detail-box p::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.img-box-container {
+  height: 250px;            /* Fixed container height */
+  overflow: hidden;
+  border-radius: 10px;
+  position: relative;
+}
+
+.package-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* Fill container and zoom */
+  transition: transform 0.5s ease; /* Smooth zoom effect */
+}
+
+.img-box-container:hover .package-img {
+  transform: scale(1.1);    /* Zoom in on hover */
+}
+
+/* Short description 2-3 lines with dots */
+.text-truncate-3 {
+  display: -webkit-box;
+
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.img-box-container {
+  height: 250px;
+  overflow: hidden;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer; /* show pointer on hover */
+}
+
+.package-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        
+  transition: transform 0.5s ease;
+}
+
+.img-box-container:hover .package-img {
+  transform: scale(1.1);    
+}
+
+.carousel-item img {
+  height: 700px;
+  object-fit: cover;
+}
+
+/* Title: single line with ellipsis */
+.detail-box h5 {
+  white-space: nowrap;      /* single line */
+  overflow: hidden;         /* hide overflow */
+  text-overflow: ellipsis;  /* show ... */
+  margin-bottom: 0.5rem;
+}
+
+/* Description: limit to 5 lines with ellipsis */
+.detail-box p.text-truncate-3 {
+  display: -webkit-box;          /* enable line clamping */
+
+  -webkit-box-orient: vertical;  /* vertical orientation */
+  overflow: hidden;              /* hide overflow */
+  text-overflow: ellipsis;
+  margin-bottom: 0;
+}
+
+/* Contact Cards Hover Animation */
+.row.justify-content-center .card {
+  transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease; /* added background-color transition */
+  cursor: pointer; /* show pointer */
+}
+
+/* Hover Effect */
+.row.justify-content-center .card:hover {
+  transform: translateY(-10px) scale(1.05); /* lift & scale */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2); /* stronger shadow */
+  background-color: #f8b400; /* new background color on hover */
+  color: #000; /* optional: change text color for contrast */
+}
+
+/* Optional: smooth icon color change */
+.row.justify-content-center .card i {
+  transition: color 0.3s ease, transform 0.4s ease;
+}
+
+.row.justify-content-center .card:hover i {
+  color: #000; /* icon color change to match background */
+  transform: scale(1.2); /* slight icon zoom */
+}
+
+/* Optional: smooth text color change */
+.row.justify-content-center .card h5,
+.row.justify-content-center .card p {
+  transition: color 0.4s ease;
+}
+
+.row.justify-content-center .card:hover h5,
+.row.justify-content-center .card:hover p {
+  color: #000; /* match the background */
+}
+
+/* Packages Boxes Hover Animation */
+.box {
+  transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+  cursor: pointer;
+  background-color: #fff; /* default background */
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Lift & scale on hover */
+.box:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  background-color: #f8b400; /* hover background */
+  color: #000;
+}
+
+/* Package Image Zoom on Hover */
+.img-box-container:hover .package-img {
+  transform: scale(1.1);
+  transition: transform 0.5s ease;
+}
+
+/* Animate title separately */
+.box .detail-box h5 {
+  transition: color 0.4s ease, transform 0.5s ease;
+}
+
+.box:hover .detail-box h5 {
+  color: #fff; /* highlight color */
+  transform: translateY(-5px);
+}
+
+/* Animate description separately */
+.box .detail-box p.text-truncate-3 {
+  transition: color 0.4s ease, opacity 0.4s ease;
+}
+
+.box:hover .detail-box p.text-truncate-3 {
+  color: #fff; /* highlight color */
+  opacity: 0.9;
+}
+
+/* Animate price */
+.box .options p span {
+  transition: color 0.4s ease;
+}
+
+.box:hover .options p span {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Animate days */
+.box .options span {
+  transition: color 0.4s ease;
+}
+
+.box:hover .options span {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Optional: add subtle text shadow on hover for better readability */
+.box:hover .detail-box h5,
+.box:hover .detail-box p,
+.box:hover .options span,
+.box:hover .options p span {
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+/* Always-animated package title */
+.box .detail-box h5 {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+  background: linear-gradient(90deg, #fff, #f8b400, #fff);
+  background-size: 200% auto;
+  color: #fff;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Shimmer animation keyframes */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Review Boxes More Transparent / 3D Effect */
+.client_owl-carousel .item .box {
+  background: rgba(255, 255, 255, 0.05) !important; /* force transparency */
+  backdrop-filter: blur(5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+  color: #fff; /* text color */
+}
+
+/* Hover effect for more depth */
+.client_owl-carousel .item .box:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.heading_container h2 {
+  margin-bottom: 30px; /* adjust the value as needed */
+}
+
+.row .card {
+  background-color: #1c1c1c; /* dark background */
+  color: #ffffff;            /* white text */
+  border: none;              /* remove default border */
+}
+
+.row .card i {
+  color: #f8b400;            /* optional: icon color */
+}
+
+.row .card h5 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.row .card p {
+  margin: 0;
+}
+
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Chatbot -->
+<div id="chatbot" style="position:fixed; bottom:20px; right:20px; width:320px; max-height:420px; background:#fff; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.3); display:flex; flex-direction:column; font-family:Arial, sans-serif; z-index:9999; overflow:hidden;">
+  <div id="chatbotHeader" style="background:#2575fc; color:#fff; padding:12px; cursor:pointer; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+    Chat with us
+    <span id="chatbotToggle" style="font-size:18px; line-height:0;">❌</span>
+  </div>
+  <div id="chatbotBody" style="flex:1; padding:10px; overflow-y:auto; display:none; background:#f9f9f9;"></div>
+  <input type="text" id="chatbotInput" placeholder="Ask about packages..." style="border:none; border-top:1px solid #ddd; padding:10px; display:none; outline:none;" />
+</div>
+
+
+  <!-- Hero Section -->
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="images/4.jpg" alt="">
+    </div>
+
+    <!-- Header -->
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="index.html"><span>ceyBreeze Tours</span></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="packagecatalog.html">Packages</a></li>
+              <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+              <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+              <li class="nav-item"><a class="nav-link" href="signup.html">Sign Up</a></li>
+            </ul>
+<div class="user_option dropdown">
+  <a href="#" id="user-greeting" class="text-white me-3 dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Hi Guest
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-greeting">
+    <li><a class="" href="#" id="signOutBtn">Sign Out</a></li>
+  </ul>
+  <a href="#" id="bookingBtn" class="order_online ms-2">Booking</a>
+</div>
+
+
+          </div>
+        </nav>
+      </div>
+    </header>
+
+<!-- Slider Section -->
+<section class="slider_section">
+  <div id="customCarousel1" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="false">
+
+    <div class="carousel-inner" id="carouselImages"></div>
+
+    <div class="container">
+      <ol class="carousel-indicators" id="carouselIndicators"></ol>
+    </div>
+
+    <!-- Controls -->
+  
+  </div>
+</section>
+
+
+
+  <!-- Packages Section -->
+  <section class="">
+    <div class="container">
+      <div class="heading_container heading_center">
+       <h2 class="mb-4">Our Tour Packages</h2> <!-- mb-4 adds margin-bottom -->
+
+      </div>
+      <div class="filters-content">
+        <div class="row grid" id="packageContainer"></div>
+      </div>
+      <div class="btn-box">
+        <a href="packagecatalog.html">View More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about_section layout_padding">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 ">
+          <div class="img-box">
+            <img src="images/about-img.png" alt="">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="detail-box">
+            <div class="heading_container">
+              <h2>We Are CeyBreeze</h2>
+            </div>
+            <p>Travel with us to the most amazing destinations. Experience comfort, safety, and adventure in one
+              package.</p>
+            <a href="about.html">Read More</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+  <!-- Contact Section -->
+  <section class="contact_section layout_padding bg-light">
+    <div class="container">
+      <div class="heading_container heading_center">
+        <h2>Contact Us</h2>
+        <p class="text-muted">Have questions or suggestions? Send us a message!</p>
+      </div>
+      
+
+      <div class="row justify-content-center mt-4">
+        <!-- Contact Info Cards -->
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm p-3 text-center h-100">
+            <i class="fa fa-map-marker fa-2x mb-2 text-primary"></i>
+            <h5>Our Location</h5>
+            <p>123 Main Street, Colombo, Sri Lanka</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm p-3 text-center h-100">
+            <i class="fa fa-envelope fa-2x mb-2 text-primary"></i>
+            <h5>Email Us</h5>
+            <p>ceybreezetours@gmail.com</p>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm p-3 text-center h-100">
+            <i class="fa fa-phone fa-2x mb-2 text-primary"></i>
+            <h5>Call Us</h5>
+            <p>+94 11 123 4567</p>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <!-- Form Card -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-lg-8">
+          <div class="card shadow-sm p-4 contact-gradient-card">
+            <div id="formAlert" class="mb-3 text-light"></div>
+            <form id="contactForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <input type="text" class="form-control" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <input type="email" class="form-control" name="email" placeholder="Your Email" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <input type="text" class="form-control" name="subject" placeholder="Subject" required>
+              </div>
+              <div class="mb-3">
+                <textarea class="form-control" name="message" placeholder="Message" rows="5" required></textarea>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-animated px-5">Send Message</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+<!-- Client Section -->
+<section class="client_section layout_padding-bottom bg-dark text-white">
+  <div class="container">
+    <div class="heading_container heading_center psudo_white_primary mb-4">
+      <h2 class="text-white">What Says Our Customers</h2>
+    </div>
+    <div class="carousel-wrap row">
+      <div class="owl-carousel client_owl-carousel" id="reviewsContainer">
+        <!-- Reviews will be dynamically added here -->
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<script>
+  $(document).ready(function(){
+    $(".client_owl-carousel").owlCarousel({
+      loop:true,
+      margin:20,
+      nav:false,
+      autoplay:true,
+      autoplayTimeout:4000,
+      responsive:{
+        0:{items:1},
+        600:{items:2},
+        1000:{items:3}
+      }
+    });
+  });
+</script>
+
+
+<!-- Google Map Section -->
+<section class="map_section position-relative">
+  <div class="container-fluid p-0">
+    <div class="google-map" style="width:100%; height:400px; overflow:hidden; border-radius:10px;">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3957.567789694676!2d80.3660359752552!3d7.486267394435318!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae35c9371e3bb39%3A0x9f3e18d0b69d7b86!2sKurunegala%2C%20Sri%20Lanka!5e0!3m2!1sen!2sus!4v1693557300000!5m2!1sen!2sus" 
+        style="width:100%; height:100%; border:0; filter: brightness(0.9) contrast(1.1);" 
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+
+    <!-- Overlay Contact Info -->
+    <div style="position:absolute; top:20px; left:20px; background: rgba(0,0,0,0.5); color:#fff; padding:15px; border-radius:10px; max-width:300px;">
+      <h5>Contact Us</h5>
+      <p><i class="fa fa-map-marker me-2"></i>Kurunegala, Sri Lanka</p>
+      <p><i class="fa fa-phone me-2"></i>+94 11 123 4567</p>
+      <p><i class="fa fa-envelope me-2"></i>ceybreezetours@gmail.com</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<footer class="footer_section">
+  <div class="container">
+    <div class="row text-center text-md-start">
+      
+      <!-- Company Info -->
+      <div class="col-md-4 footer-col mb-4">
+        <h4 class="footer-logo">CeyBreeze</h4>
+        <p>Travel with comfort and adventure across the world.</p>
+      </div>
+
+      <!-- Opening Hours -->
+      <div class="col-md-4 footer-col mb-4">
+        <h5 class="footer-title">Opening Hours</h5>
+        <p>Everyday</p>
+        <p>10.00 AM - 10.00 PM</p>
+         <a href="privacy-policy.html">Privacy Policy</a>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-md-4 footer-col mb-4">
+        <h5 class="footer-title">Contact Us</h5>
+        <p><i class="fa fa-map-marker me-2"></i> Kurunegala, Sri Lanka</p>
+        <p><i class="fa fa-phone me-2"></i> +94 11 123 4567</p>
+        <p><i class="fa fa-envelope me-2"></i> ceybreezetours@gmail.com</p>
+      </div>
+
+    </div>
+
+    <!-- Bottom Line -->
+   <div class="footer-bottom text-center mt-4">
+  <p>© <span id="displayYear"></span> CeyBreeze Tours | All Rights Reserved</p>
+
+</div>
+  </div>
+</footer>
+
+<script>
+  // Display current year automatically
+  document.getElementById("displayYear").textContent = new Date().getFullYear();
+</script>
+
+<!-- Footer Styles -->
+<style>
+  .footer_section {
+    background: linear-gradient(135deg, #0d1b2a, #1b263b);
+    color: #ddd;
+    padding: 50px 0 20px;
+    margin-top: 0;
+    border-top: 4px solid #f8b400;
+  }
+
+  .footer-logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f8b400;
+    margin-bottom: 15px;
+    display: inline-block;
+  }
+
+  .footer-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #f8b400;
+  }
+
+  .footer-col p, 
+  .footer-col a {
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0;
+    color: #ddd;
+    transition: color 0.3s;
+  }
+
+  .footer-col a:hover,
+  .footer-col p:hover {
+    color: #f8b400;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 15px;
+    font-size: 14px;
+    color: #bbb;
+  }
+
+   .admin-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 15px;
+    font-size: 14px;
+    color: #fff;
+    background: #f8b400;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .admin-btn:hover {
+    background: #ffc107;
+    color: #000;
+  }
+
+  /* Remove dark background overlay behind carousel controls */
+.carousel-control-prev,
+.carousel-control-next {
+  width: auto; /* shrink button width */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-image: none !important; /* remove Bootstrap's default arrow icons */
+  font-size: 2rem;
+  color: white; /* arrow color */
+}
+
+/* Add your own clean arrows */
+.carousel-control-prev-icon::after {
+  content: '❮'; /* left arrow */
+  font-size: 2rem;
+  color: white;
+}
+
+.carousel-control-next-icon::after {
+  content: '❯'; /* right arrow */
+  font-size: 2rem;
+  color: white;
+}
+
+.carousel-item img {
+  transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out;
+}
+
+.carousel-item.active img {
+  transform: scale(1.05);  /* zoom-in effect */
+  opacity: 1;
+}
+
+.carousel-item-next img,
+.carousel-item-prev img {
+  transform: scale(1);
+  opacity: 0.7;
+}
+
+.dropdown-menu #signOutBtn {
+  color: #000000;
+  background-color: #1b263b;
+}
+
+.dropdown-menu #signOutBtn:hover {
+  color: #fff;
+  background-color: #f8b400;
+}
+#signOutBtn {
+  color: #0c0c0c;          /* Change text color */
+  font-weight: 600;         /* Make text bold */
+  background-color: transparent; /* Keep background transparent */
+  transition: color 0.3s ease;  /* Smooth hover effect */
+}
+
+#signOutBtn:hover {
+  color: #fff;              /* Text color on hover */
+  background-color: #f8b400; /* Optional: background highlight */
+  border-radius: 5px;        /* Optional: rounded corners */
+}
+
+
+
+
+  
+</style>
+
+
+
+
+
+
+  <!-- JS Scripts -->
+  <script src="js/jquery-3.4.1.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAP_API&callback=myMap"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+
+
+  <script>
+    emailjs.init("h0E7YovRkHqMoL0fG");
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+      authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+      projectId: "ceybreeze-tours-3443d",
+    storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+      messagingSenderId: "94148437936",
+      appId: "1:94148437936:web:4de667cfc522c502c05875"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  const greeting = document.getElementById("user-greeting");
+  const signOutBtn = document.getElementById("signOutBtn");
+
+  if (user) {
+    let firstName = user.displayName ? user.displayName.split(' ')[0] : "User";
+    greeting.textContent = `Hi ${firstName}`;
+
+    // Check session expiration
+    user.getIdTokenResult().then(idTokenResult => {
+      const expirationTime = new Date(idTokenResult.expirationTime);
+      const now = new Date();
+      if (expirationTime <= now) {
+        alert("Your session has expired. Please log in again.");
+        auth.signOut().then(() => {
+          window.location.href = "login.html";
+        });
+      }
+    });
+
+    // Add sign-out event once
+    signOutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    });
+
+  } else {
+    greeting.textContent = "Hi Guest";
+    signOutBtn.style.display = "none";
+  }
+});
+
+
+
+bookingBtn.addEventListener("click", (e) => {
+  e.preventDefault(); 
+  const user = auth.currentUser;
+  if(user) window.location.href = "userhome.html";
+  else window.location.href = "login.html";
+});
+
+
+bookingBtn.addEventListener("click", (e) => {
+  e.preventDefault(); // Prevent default link behavior
+  const user = auth.currentUser;
+  
+  if(user) {
+    // Navigate to user home page
+    window.location.href = "userhome.html";
+  } else {
+    // Navigate to login page
+    window.location.href = "login.html";
+  }
+});
+
+
+
+
+// Load homepage slider from Firestore
+db.collection("homepageSlider").orderBy("uploadedAt", "desc").get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      carouselImages.innerHTML = `
+        <div class="carousel-item active">
+          <img src="images/b3.jpg" class="d-block w-100" alt="Default Slide">
+        </div>`;
+    } else {
+      let index = 0;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const active = index === 0 ? "active" : "";
+
+        // Add slide
+        carouselImages.innerHTML += `
+          <div class="carousel-item ${active}">
+            <img src="${data.url}" class="d-block w-100" alt="slider image">
+          </div>`;
+
+        // Add indicator (Bootstrap 5 syntax)
+        carouselIndicators.innerHTML += `
+          <li data-bs-target="#customCarousel1" data-bs-slide-to="${index}" class="${active}"></li>`;
+
+        index++;
+      });
+    }
+
+    // Initialize Bootstrap 5 carousel after DOM update
+    new bootstrap.Carousel(document.querySelector('#customCarousel1'), {
+      interval: 8000,
+      ride: 'carousel',
+      pause: false
+    });
+  })
+  .catch(err => console.error("Error loading slider:", err));
+
+
+
+
+
+// Get packageId from URL query
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+const clickedPackageId = getQueryParam("id");
+
+
+
+
+const packageContainer = document.getElementById("packageContainer");
+
+// Fetch packages from Firestore
+db.collection("tourPackages").limit(9).get()
+  .then(snapshot => {
+    packageContainer.innerHTML = ""; // Clear any existing content
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+
+      // Shorten description to 100 chars
+      let shortDesc = data.description || "";
+      if (shortDesc.length > 100) shortDesc = shortDesc.substring(0, 100) + "...";
+
+      // Image
+      const imageUrl = (data.photos && data.photos.length > 0) ? data.photos[0] : "https://via.placeholder.com/300x200?text=No+Image";
+
+      // Days
+      const days = data.days ? `${data.days} Days` : "N/A";
+
+      // Price
+      const price = data.price ? `Start from $${data.price}` : "Start from $150";
+
+      // Append package card
+      packageContainer.innerHTML += `
+        <div class="col-sm-6 col-lg-4 all pizza mb-4">
+          <div class="box shadow-sm cursor-pointer" onclick="viewPackage('${doc.id}')">
+            <div class="img-box-container">
+              <img src="${imageUrl}" alt="${data.title}" class="package-img">
+            </div>
+            <div class="detail-box p-3">
+              <h5 class="text-truncate" style="max-width: 100%;">${data.title}</h5>
+              <p class="text-truncate-3">${shortDesc}</p>
+              <div class="options mt-2 d-flex justify-content-between align-items-center">
+                <p><span>${price}</span></p>
+                <span>${days}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  })
+  .catch(err => console.error("Error loading packages:", err));
+
+// Navigate to package catalog page with ID
+function viewPackage(packageId) {
+  window.location.href = `packagecatalog.html?id=${packageId}`;
+}
+
+
+
+const reviewsContainer = document.getElementById("reviewsContainer");
+
+// Fetch reviews from Firestore
+db.collection("reviews").orderBy("createdAt", "desc").get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      reviewsContainer.innerHTML = '<p class="text-white">No reviews yet.</p>';
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const userName = data.userName || "Anonymous";
+      const reviewText = data.reviewText || "";
+      const rating = data.rating || 0;
+
+      // Optional: create stars for rating
+      let starsHtml = "";
+      for (let i = 0; i < rating; i++) starsHtml += '<i class="fa fa-star text-warning"></i>';
+      for (let i = rating; i < 5; i++) starsHtml += '<i class="fa fa-star text-secondary"></i>';
+
+      const reviewItem = document.createElement("div");
+      reviewItem.classList.add("item");
+      reviewItem.innerHTML = `
+       <div class="box p-3 rounded h-100 d-flex flex-column align-items-center justify-content-between">
+  <p class="text-center mb-2">${reviewText}</p>
+  <div class="mb-2">${starsHtml}</div>
+  <h6 class="text-center">${userName}</h6>
+</div>
+
+      `;
+
+      reviewsContainer.appendChild(reviewItem);
+    });
+
+    // Initialize Owl Carousel after adding all reviews
+    $(".client_owl-carousel").owlCarousel({
+      loop: true,
+      margin: 20,
+      nav: false,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      responsive: {
+        0: { items: 1 },
+        600: { items: 2 },
+        1000: { items: 3 }
+      }
+    });
+
+  })
+  .catch(err => console.error("Error loading reviews:", err));
+
+
+
+// --- Chatbot Logic ---
+const chatbotHeader = document.getElementById('chatbotHeader');
+const chatbotBody = document.getElementById('chatbotBody');
+const chatbotInput = document.getElementById('chatbotInput');
+const chatbotToggle = document.getElementById('chatbotToggle');
+
+// Toggle chatbot open/close
+let isOpen = false;
+chatbotHeader.addEventListener('click', () => {
+  isOpen = !isOpen;
+  chatbotBody.style.display = isOpen ? 'block' : 'none';
+  chatbotInput.style.display = isOpen ? 'block' : 'none';
+  chatbotToggle.textContent = isOpen ? '➖' : '❌';
+  if (isOpen) chatbotInput.focus();
+});
+
+// Append message to chat
+function appendMessage(sender, content, isHTML = true) {
+  const msgDiv = document.createElement('div');
+  msgDiv.style.margin = '5px 0';
+  msgDiv.style.padding = '8px 12px';
+  msgDiv.style.borderRadius = '10px';
+  msgDiv.style.maxWidth = '90%';
+  msgDiv.style.wordWrap = 'break-word';
+  if (sender === 'user') {
+    msgDiv.style.background = '#2575fc';
+    msgDiv.style.color = '#fff';
+    msgDiv.style.alignSelf = 'flex-end';
+  } else {
+    msgDiv.style.background = '#f1f1f1';
+    msgDiv.style.color = '#000';
+    msgDiv.style.alignSelf = 'flex-start';
+  }
+  msgDiv.innerHTML = isHTML ? content : content.replace(/\n/g, '<br>');
+  chatbotBody.appendChild(msgDiv);
+  chatbotBody.scrollTop = chatbotBody.scrollHeight;
+}
+
+
+// --- Keywords mapping ---
+const databaseKeywords = {
+  allplaces: [
+    "how many places", "list all places", "places", "show places",
+    "top places", "famous places", "popular destinations", "tourist spots",
+    "must visit", "heritage sites", "sightseeing", "best places", 
+    "city tour", "village tour", "cultural places", "ancient cities",
+    "nature spots", "temples", "historic sites", "lakes", "hills",
+    "beaches", "waterfalls", "parks", "mountains", "villages",
+    "eco tours", "heritage", "monuments", "forts", "caves",
+    "gardens", "national parks", "reserves", "cultural triangle",
+    "adventure places", "rafting spots", "hiking places", "trekking",
+    "safari", "wildlife", "bird watching", "cultural tours", "day trips",
+    "excursions", "landmarks", "historic temples", "sacred places",
+    "ancient ruins", "city highlights", "village experiences", "river tours",
+    "cultural experiences", "heritage sites tour", "nature tours",
+    "eco sites", "nature trails", "tour spots", "hill country",
+    "cultural heritage", "tour destinations", "tour highlights", "cultural landmarks",
+    "iconic places", "scenic spots", "top tourist attractions", "must-see",
+    "explore places", "visit places", "travel spots", "tour places",
+    "popular places", "historic landmarks", "cultural sites", "ancient temples",
+    "beautiful spots", "photography places", "scenic views", "nature destinations",
+    "famous landmarks", "holiday spots", "adventure tours", "guided tours",
+    "nature exploration", "cultural journey", "tour itinerary", "travel guide",
+    "must visit places", "exploration", "destination highlights", "tour packages",
+    "holiday destinations", "travel spots", "best tour spots", "day trips destinations",
+    "weekend trips", "sightseeing tours", "holiday trips", "explore Sri Lanka"
+  ],
+  newsletters: [
+    "subscribe newsletter", "latest news", "news update", "signup newsletter",
+    "email updates", "newsletters", "updates", "subscribe", "mailing list",
+    "weekly newsletter", "monthly newsletter", "news alerts", "special news",
+    "tour news", "latest offers", "promotions", "holiday news", "travel news",
+    "subscribe updates", "email alerts", "tour updates", "package news",
+    "company news", "tourism news", "weekly updates", "monthly updates",
+    "special updates", "subscribe now", "sign up", "latest offers newsletter",
+    "new packages news", "travel tips", "travel deals", "holiday offers",
+    "tourist tips", "tour promotions", "package updates", "latest tours",
+    "latest packages", "travel insights", "news & updates", "weekly digest",
+    "monthly digest", "special offers news", "latest announcements", "tour info",
+    "holiday info", "tour highlights", "package highlights", "travel info",
+    "subscribe email", "subscribe alerts", "newsletter signup", "latest tours info",
+    "exclusive newsletter", "exclusive offers", "tour guide news", "tour tips",
+    "travel newsletter", "latest destinations", "upcoming tours", "holiday newsletter",
+    "tour newsletter", "company newsletter", "travel alerts", "destination updates",
+    "package promotions", "offer updates", "travel promotions", "latest trips",
+    "special announcements", "latest holiday packages", "weekly tips", "monthly tips",
+    "travel guide updates", "tourism alerts", "tour info updates", "newsletter updates",
+    "holiday deals newsletter", "tour deals newsletter", "exclusive trips", "travel deals",
+    "holiday packages newsletter", "latest tours newsletter", "tour highlights newsletter",
+    "company updates", "tourism newsletter", "travel guide newsletter", "holiday tips",
+    "tour guide tips", "weekly travel", "monthly travel", "exclusive promotions",
+    "latest tour packages", "new arrivals newsletter", "exclusive trips newsletter"
+  ],
+  offers: [
+    "special offer", "current offers", "latest deals", "discounts", "promotions",
+    "holiday offer", "tour offer", "package offer", "exclusive offer", "limited offer",
+    "early bird", "last minute offer", "flash deals", "seasonal offers", "hot deals",
+    "discount offer", "cheap tour", "budget deals", "package deals", "offer details",
+    "sale", "offers", "promotion codes", "voucher", "coupon", "special discounts",
+    "tour deals", "holiday deals", "travel deals", "exclusive deals", "limited deals",
+    "package promotions", "best offers", "today's deal", "offer update", "offer info",
+    "offer list", "special promotion", "holiday promotion", "travel promotion",
+    "discounted packages", "offers for customers", "package discounts", "top offers",
+    "current promotion", "special deals", "deal of the day", "seasonal deals",
+    "tour discounts", "limited-time offers", "exclusive package deals", "travel savings",
+    "holiday savings", "discounts available", "exclusive discounts", "special trip deals",
+    "promotion alert", "offer alert", "package offers", "latest promotion", "today's offers",
+    "deal alert", "holiday sale", "tour sale", "offer news", "promo codes", "discount codes",
+    "travel discounts", "holiday packages discounts", "special savings", "tour specials",
+    "package specials", "exclusive holiday deals", "discount notifications", "sale offers",
+    "tourist promotions", "latest savings", "offer highlights", "package highlights",
+    "holiday highlights", "best holiday offers", "tour deals list", "travel deals list",
+    "exclusive travel offers", "limited tour promotions", "flash sale", "package flash sale",
+    "exclusive flash deal", "offer specials", "top discounts", "holiday trip deals",
+    "travel trip deals", "last-minute tour deals", "current trip offers", "holiday savings alert",
+    "trip discount list", "exclusive holiday promotion", "special trip promotion"
+  ],
+  tourPackages: [
+    "list packages", "tour packages", "available packages", "package details", "package info",
+    "show packages", "holiday packages", "Sri Lanka tours", "Cultural Triangle Express",
+    "Cultural & Hill Country Mix", "Classic Cultural Tour", "Hill Country & Cultural Triangle",
+    "top packages", "popular tours", "best packages", "tour itinerary", "days for packages",
+    "places included", "package description", "package photos", "package title", "package ID",
+    "visit places", "tour highlights", "day tours", "weekend tours", "multi-day tours", "guided tours",
+    "excursion packages", "adventure packages", "family tours", "romantic tours", "luxury tours",
+    "budget tours", "affordable packages", "package options", "tour selection", "holiday itinerary",
+    "popular destinations", "top destinations", "recommended tours", "must-visit tours", "holiday plans",
+    "tour schedule", "tour days", "tour details", "tour summary", "tour features", "tour package info",
+    "package highlights", "package overview", "package recommendations", "tour package list", "all packages",
+    "Sri Lanka travel", "travel packages", "Cultural tours", "Hill country tours", "Classic tours",
+    "holiday trips", "sightseeing tours", "cultural heritage tours", "ancient city tours", "nature tours",
+    "historic tours", "city tours", "village tours", "package choices", "tour options", "available trips",
+    "tour selection guide", "tour package highlights", "package summary", "package itinerary", "tour guide info",
+    "recommended packages", "tour photos", "package images", "package media", "day trips", "weekend trips",
+    "multi-day trips", "special tours", "guided excursions", "exclusive tours", "limited tours", "top tour packages",
+    "holiday suggestions", "tour suggestions", "best tour packages", "tour packages guide", "package recommendations",
+    "holiday options", "tour ideas", "Sri Lanka highlights", "travel itinerary", "package itinerary", "tourist packages"
+  ],
+  tourPrices: [
+    "base price", "per person price", "3 star hotel price", "4 star hotel price", "5 star hotel price",
+    "guest house price", "resort price", "suite price", "double room price", "family room price",
+    "single room price", "twin room price", "room type prices", "hotel type prices", "package cost",
+    "tour price", "tour cost", "holiday price", "starting price", "minimum price", "price per person",
+    "price details", "price list", "price info", "pricing", "tour pricing", "holiday pricing", "package pricing",
+    "total cost", "calculate price", "cost calculator", "budget price", "affordable price", "price options",
+    "tour expense", "holiday expense", "trip cost", "travel cost", "price guide", "pricing info", "package charges",
+    "tour charges", "hotel pricing", "room pricing", "resort pricing", "cost per day", "daily price", "daily cost",
+    "tour cost per person", "package cost per person", "per person cost", "room cost", "room charges", "total package cost",
+    "holiday package cost", "trip price", "trip charges", "budget package", "luxury package price", "mid-range package",
+    "pricing details", "holiday package pricing", "cost breakdown", "total pricing", "daily rate", "price range",
+    "cheapest package", "most expensive package", "cost estimate", "estimate price", "tour quote", "package quote",
+    "travel quote", "pricing guide", "holiday quote", "package price list", "tour package price list", "holiday package price list",
+    "trip cost guide", "total trip cost", "calculate total price", "price calculator", "estimate total cost", "pricing options",
+    "best price", "lowest price", "highest price", "package fee", "holiday fee", "trip fee", "tour fee", "total fees"
+  ],
+  vehiclePrices: [
+    "luxury bus price", "luxury car price", "luxury van price",
+    "semi-luxury bus price", "semi-luxury car price", "semi-luxury van price", "tuk tuk price",
+    "vehicle prices", "transport cost", "rent vehicle", "vehicle rental", "vehicle cost",
+    "bus price", "car price", "van price", "vehicle rate", "rent a bus", "rent a car", "rent a van",
+    "total cost for vehicle", "calculate vehicle cost", "vehicle fare", "bus fare", "car fare", "van fare",
+    "transport fare", "luxury transport cost", "semi-luxury transport cost", "tuk tuk cost", "vehicle charges",
+    "rent vehicle per day", "vehicle cost per day", "total fare", "calculate fare", "vehicle options", "vehicle list",
+    "vehicle types", "luxury vehicle", "semi-luxury vehicle", "transport price list", "vehicle package price",
+    "cost for transport", "bus rental", "car rental", "van rental", "tuk tuk rental", "luxury bus rate",
+    "semi-luxury bus rate", "bus total cost", "car total cost", "van total cost", "tuk tuk total cost",
+    "transport charges", "vehicle cost details", "vehicle info", "vehicle summary", "vehicle guide", "vehicle highlights",
+    "vehicle booking", "vehicle booking cost", "transport booking", "transport availability", "vehicle availability",
+    "vehicle service", "luxury vehicle service", "semi-luxury vehicle service", "total vehicle price", "calculate vehicle price",
+    "vehicle quote", "vehicle estimate", "total vehicle fare", "vehicle cost calculation", "rent vehicle quote", "vehicle cost calculator",
+    "vehicle rates", "vehicle charges list", "bus charges", "car charges", "van charges", "tuk tuk charges",
+    "vehicle rental cost", "vehicle booking fee", "vehicle options list", "vehicle categories", "luxury transport", "semi-luxury transport",
+    "vehicle types and prices", "transport cost calculator", "transport fee", "calculate transport cost", "vehicle total charges",
+    "vehicle cost guide", "vehicle price guide", "rent vehicle estimate", "vehicle pricing list", "total transport cost", "vehicle pricing options"
+  ]
+};
+
+// --- Chatbot Input Handler ---
+chatbotInput.addEventListener('keypress', async (e) => {
+  if (e.key !== 'Enter') return;
+
+  const query = chatbotInput.value.trim();
+  if (!query) return;
+
+  appendMessage('user', query);
+  chatbotInput.value = '';
+  appendMessage('bot', '🤖 Fetching information...');
+
+  try {
+    const lowerQuery = query.toLowerCase();
+    let responseText = '';
+    let found = false;
+
+    // --- Greetings ---
+    if (lowerQuery.includes('hello') || lowerQuery.includes('hi')) {
+      responseText = 'Hello! 👋 How can I help you today?';
+      found = true;
+    }
+
+    // --- Numeric Queries ---
+    if (!found && lowerQuery.includes('how many')) {
+      if (lowerQuery.includes('package') || lowerQuery.includes('tour')) {
+        const snapshot = await db.collection('tourPackages').get();
+        responseText = `We currently have <b>${snapshot.size}</b> tour packages available.`;
+        found = true;
+      } else if (lowerQuery.includes('user')) {
+        const snapshot = await db.collection('users').get();
+        responseText = `We currently have <b>${snapshot.size}</b> registered users.`;
+        found = true;
+      }
+    }
+
+    // --- Starting price ---
+    if (!found && (lowerQuery.includes('start price') || lowerQuery.includes('lowest price'))) {
+      const snapshot = await db.collection('tourPackages').get();
+      if (!snapshot.empty) {
+        const prices = snapshot.docs.map(doc => Number(doc.data().price) || Infinity);
+        const minPrice = Math.min(...prices);
+        responseText = `The starting price for our tour packages is <b>$${minPrice}</b>.`;
+      } else {
+        responseText = 'Sorry, no tour packages found to determine starting price.';
+      }
+      found = true;
+    }
+
+    // --- Vehicle price queries ---
+    if (!found && lowerQuery.includes('vehicle') || lowerQuery.includes('bus') || lowerQuery.includes('car')) {
+      const snapshot = await db.collection('vehiclePrices').get();
+      if (!snapshot.empty) {
+        responseText = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (lowerQuery.includes('luxury')) {
+            responseText += `<b>Luxury Vehicles:</b><br>${Object.entries(data.luxury || {}).map(([v, p]) => `${v}: $${p}`).join('<br>')}<hr>`;
+          } else if (lowerQuery.includes('semi') || lowerQuery.includes('tuk')) {
+            responseText += `<b>Semi-Luxury Vehicles:</b><br>${Object.entries(data.semiLuxury || {}).map(([v, p]) => `${v}: $${p}`).join('<br>')}<hr>`;
+          } else {
+            responseText += `<b>Luxury Vehicles:</b><br>${Object.entries(data.luxury || {}).map(([v, p]) => `${v}: $${p}`).join('<br>')}<br><b>Semi-Luxury Vehicles:</b><br>${Object.entries(data.semiLuxury || {}).map(([v, p]) => `${v}: $${p}`).join('<br>')}<hr>`;
+          }
+        });
+        found = true;
+      }
+    }
+
+    // --- Iterate over databaseKeywords ---
+    for (const [dbName, keywords] of Object.entries(databaseKeywords)) {
+      if (found) break;
+      for (const keyword of keywords) {
+        if (lowerQuery.includes(keyword)) {
+          const snapshot = await db.collection(dbName).get();
+          if (snapshot.empty) {
+            responseText = `No items found in ${dbName}.`;
+          } else {
+            responseText = '';
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              // Friendly formatting per database
+              if (dbName === 'tourPackages') {
+                let imgTag = '';
+                if (data.photos && data.photos.length > 0) {
+                  imgTag = `<img src="${data.photos[0]}" alt="${data.title}" style="width:100%;max-width:250px;border-radius:10px;margin-bottom:5px;"><br>`;
+                }
+                responseText += `${imgTag}<b>${data.title}</b> (${data.days} days)<br>
+                Places: ${data.places.join(', ')}<br>
+                Description: ${data.description}<br>
+                Price: ${data.price ? '$' + data.price : 'Contact us'}<hr>`;
+              } else if (dbName === 'offers') {
+                responseText += `<b>Offer:</b> ${data.text || 'N/A'}<br>
+                Created At: ${data.createdAt?.toDate?.() || 'N/A'}<hr>`;
+              } else if (dbName === 'allplaces') {
+                responseText += `<b>Place:</b> ${data.name || 'N/A'}<br>
+                Province: ${data.province?.join(', ') || 'N/A'}<br>
+                <img src="${data.photo}" style="width:100%;max-width:200px;border-radius:10px;margin-bottom:5px;"><hr>`;
+              } else if (dbName === 'tourPrices') {
+                responseText += `<b>Base Price per Person:</b> $${data.basePricePerPerson || 'N/A'}<br>
+                <b>Hotel Prices:</b> ${JSON.stringify(data.hotelTypes)}<br>
+                <b>Room Prices:</b> ${JSON.stringify(data.roomTypes)}<hr>`;
+              } else if (dbName === 'vehiclePrices') {
+                responseText += `<b>Luxury Vehicles:</b> ${JSON.stringify(data.luxury)}<br>
+                <b>Semi-Luxury Vehicles:</b> ${JSON.stringify(data.semiLuxury)}<hr>`;
+              } else {
+                responseText += `<b>${dbName}:</b> ${JSON.stringify(data)}<hr>`;
+              }
+            });
+          }
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) responseText = "Sorry, I couldn't find any information for that query.";
+
+    chatbotBody.lastChild.remove();
+    appendMessage('bot', responseText);
+
+  } catch (err) {
+    console.error(err);
+    chatbotBody.lastChild.remove();
+    appendMessage('bot', '❌ Error fetching data from Firestore.');
+  }
+});
+
+
+
+
+    // Contact Form Submit
+    const contactForm = document.getElementById("contactForm");
+    contactForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const data = {
+        name: contactForm.name.value,
+        email: contactForm.email.value,
+        subject: contactForm.subject.value,
+        message: contactForm.message.value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      // Save to Firestore
+       db.collection("contacts").add(data)
+    .then(() => {
+      document.getElementById("formAlert").textContent = "✅ Message sent successfully!";
+      contactForm.reset();
+    })
+    .catch(err => {
+      document.getElementById("formAlert").textContent = "❌ Error: " + err.message;
+      console.error(err);
+    });
+
+  emailjs.send("service_pbqwxel", "template_yjmyawm", {
+  from_name: data.name,
+  from_email: data.email,
+  subject: data.subject,
+  message: data.message,
+  time: new Date().toLocaleString()
+})
+.then(() => {
+  console.log("✅ Email sent to CeyBreeze!");
+})
+.catch(err => console.error("❌ EmailJS error:", err));
+
+});
+
+    // Display current year
+    document.getElementById("displayYear").textContent = new Date().getFullYear();
+
+    // Google Map
+    function myMap() {
+      const mapProp = { center: new google.maps.LatLng(6.9271, 79.8612), zoom: 12 };
+      const map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+    }
+    
+  </script>
+
+</body>
+</html>

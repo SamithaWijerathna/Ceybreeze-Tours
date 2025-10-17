@@ -1,0 +1,178 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Price Upgrade</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+body { display:flex; min-height:100vh; overflow:auto; }
+.sidebar { min-width:220px; background:#212529; color:white; }
+.sidebar a { display:flex; align-items:center; color:white; padding:12px; text-decoration:none; border-radius:5px; margin-bottom:5px; }
+.sidebar a:hover { background:#495057; }
+.sidebar a i { margin-right:10px; }
+.sidebar h4 { color:#f8f9fa; margin-bottom:20px; }
+.main-content { flex:1; padding:20px; background:#f8f9fa; overflow-y:auto; }
+.card { min-height:120px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar p-3">
+  <h4><i class="fas fa-cogs"></i> Admin Panel</h4><hr>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+  <a href="tour-packages.html"><i class="fas fa-suitcase-rolling"></i> Tour Packages</a>
+  <a href="prices-upgrade.html"><i class="fas fa-tags"></i> Prices Upgrade</a>
+  <a href="homepage-slider.html"><i class="fas fa-images"></i> Homepage Slider</a>
+  <a href="users.html"><i class="fas fa-users"></i> Users</a>
+  <a href="contacts.html"><i class="fas fa-envelope"></i> Contact Messages</a>
+  <a href="newsletter.html"><i class="fas fa-paper-plane"></i> NewsLetter</a>
+  <a href="offers.html" class="active-page"><i class="fas fa-gift"></i> Offers</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main-content">
+  <h2>Prices Upgrade</h2>
+  <p class="text-muted">View and update default tour prices.</p>
+
+  <div class="table-responsive">
+    <table class="table table-bordered" id="pricesTable">
+      <thead class="table-dark">
+        <tr>
+          <th>Category / Field</th>
+          <th>Value</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="pricesBody">
+        <tr><td colspan="3">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.firebasestorage.app",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const pricesBody = document.getElementById("pricesBody");
+const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+async function loadPrices() {
+  try {
+    const docRef = db.collection("tourPrices").doc("defaultPrices");
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists) {
+      pricesBody.innerHTML = `<tr><td colspan="3" class="text-danger">No data found</td></tr>`;
+      return;
+    }
+
+    const data = docSnap.data();
+    pricesBody.innerHTML = "";
+
+    // Section: Base Price
+    pricesBody.innerHTML += `<tr class="table-section-header"><td colspan="3">1. Base Price</td></tr>`;
+    const baseTr = document.createElement("tr");
+    baseTr.innerHTML = `
+      <td>Base Price Per Person</td>
+      <td><input type="number" class="form-control form-control-sm" value="${data.basePricePerPerson || 0}" data-field="basePricePerPerson" ${currentUser.role === "editor" ? "disabled" : ""}></td>
+      <td>${currentUser.role === "admin" ? `<button class="btn btn-sm btn-success save-btn" data-field="basePricePerPerson">Save</button>` : `<span class="text-muted">Read Only</span>`}</td>
+    `;
+    pricesBody.appendChild(baseTr);
+
+    // Section: Hotels
+    if (data.hotelTypes) {
+      pricesBody.innerHTML += `<tr class="table-section-header"><td colspan="3">2. Hotels</td></tr>`;
+      for (const [hotel, value] of Object.entries(data.hotelTypes)) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${hotel}</td>
+          <td><input type="number" class="form-control form-control-sm" value="${value}" data-field="hotelTypes.${hotel}" ${currentUser.role === "editor" ? "disabled" : ""}></td>
+          <td>${currentUser.role === "admin" ? `<button class="btn btn-sm btn-success save-btn" data-field="hotelTypes.${hotel}">Save</button>` : `<span class="text-muted">Read Only</span>`}</td>
+        `;
+        pricesBody.appendChild(tr);
+      }
+    }
+
+    // Section: Rooms
+    if (data.roomTypes) {
+      pricesBody.innerHTML += `<tr class="table-section-header"><td colspan="3">3. Rooms</td></tr>`;
+      for (const [room, value] of Object.entries(data.roomTypes)) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${room}</td>
+          <td><input type="number" class="form-control form-control-sm" value="${value}" data-field="roomTypes.${room}" ${currentUser.role === "editor" ? "disabled" : ""}></td>
+          <td>${currentUser.role === "admin" ? `<button class="btn btn-sm btn-success save-btn" data-field="roomTypes.${room}">Save</button>` : `<span class="text-muted">Read Only</span>`}</td>
+        `;
+        pricesBody.appendChild(tr);
+      }
+    }
+
+    if (currentUser.role === "admin") {
+      attachSaveListeners(docRef);
+    }
+
+  } catch (err) {
+    console.error(err);
+    pricesBody.innerHTML = `<tr><td colspan="3" class="text-danger">Failed to load prices</td></tr>`;
+  }
+}
+
+function attachSaveListeners(docRef) {
+  document.querySelectorAll(".save-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const row = btn.closest("tr");
+      const input = row.querySelector('input');
+      const field = btn.dataset.field;
+      const value = parseFloat(input.value) || 0;
+
+      const updateData = {};
+      updateData[field] = value;
+
+      try {
+        await docRef.update(updateData);
+        alert("Price updated successfully!");
+      } catch (err) {
+        console.error(err);
+        alert("Failed to update price: " + err.message);
+      }
+    });
+  });
+}
+
+
+// Logout functionality
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+  e.preventDefault(); // prevent default link behavior
+  if (confirm("Are you sure you want to log out?")) {
+    localStorage.removeItem("loggedInUser"); // clear logged-in user
+    window.location.href = "adminlogin.html"; // redirect to login page
+  }
+});
+
+// Initialize
+loadPrices();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Offers</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+body { display:flex; min-height:100vh; overflow:auto; }
+.sidebar { min-width:220px; background:#212529; color:white; }
+.sidebar a { display:flex; align-items:center; color:white; padding:12px; text-decoration:none; border-radius:5px; margin-bottom:5px; }
+.sidebar a:hover { background:#495057; }
+.sidebar a i { margin-right:10px; }
+.sidebar h4 { color:#f8f9fa; margin-bottom:20px; }
+.main-content { flex:1; padding:20px; background:#f8f9fa; overflow-y:auto; }
+.card { min-height:120px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar p-3">
+  <h4><i class="fas fa-cogs"></i> Admin Panel</h4><hr>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="bookings.html"><i class="fas fa-calendar-check"></i> Bookings</a>
+  <a href="tour-packages.html"><i class="fas fa-suitcase-rolling"></i> Tour Packages</a>
+  <a href="prices-upgrade.html"><i class="fas fa-tags"></i> Prices Upgrade</a>
+  <a href="homepage-slider.html"><i class="fas fa-images"></i> Homepage Slider</a>
+  <a href="users.html"><i class="fas fa-users"></i> Users</a>
+  <a href="contacts.html"><i class="fas fa-envelope"></i> Contact Messages</a>
+  <a href="newsletter.html"><i class="fas fa-paper-plane"></i> NewsLetter</a>
+  <a href="offers.html" class="active-page"><i class="fas fa-gift"></i> Offers</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <h2>Manage Offers</h2>
+  <p class="text-muted">Add, edit, or remove offers displayed on your site.</p>
+
+  <div class="mb-3">
+    <input type="text" id="offerText" class="form-control" placeholder="Enter offer text">
+    <button id="addOfferBtn" class="btn btn-primary mt-2"><i class="fas fa-plus"></i> Add Offer</button>
+  </div>
+
+  <h5>Existing Offers</h5>
+  <table class="table table-bordered table-striped" id="offersTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Text</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3">Loading offers...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBz253Eiif34B28FdWiX51UmlbUF3dc-E0",
+  authDomain: "ceybreeze-tours-3443d.firebaseapp.com",
+  projectId: "ceybreeze-tours-3443d",
+  storageBucket: "ceybreeze-tours-3443d.appspot.com",
+  messagingSenderId: "94148437936",
+  appId: "1:94148437936:web:4de667cfc522c502c05875",
+  measurementId: "G-JB0916EC12"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const offersTableBody = document.querySelector("#offersTable tbody");
+const addOfferBtn = document.getElementById("addOfferBtn");
+const offerTextInput = document.getElementById("offerText");
+
+let offersData = [];
+
+// Load offers
+async function loadOffers() {
+  const snapshot = await db.collection("offers").orderBy("createdAt", "desc").get();
+  offersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  renderOffers();
+}
+
+// Render offers table
+function renderOffers() {
+  if(offersData.length === 0){
+    offersTableBody.innerHTML = "<tr><td colspan='3'>No offers found.</td></tr>";
+    return;
+  }
+  offersTableBody.innerHTML = "";
+  offersData.forEach((offer, index)=>{
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${index+1}</td>
+      <td><input type="text" class="form-control offer-text-input" data-id="${offer.id}" value="${offer.text}"></td>
+      <td>
+        <button class="btn btn-success btn-sm save-btn" data-id="${offer.id}"><i class="fas fa-save"></i></button>
+        <button class="btn btn-danger btn-sm delete-btn" data-id="${offer.id}"><i class="fas fa-trash"></i></button>
+      </td>
+    `;
+    offersTableBody.appendChild(row);
+  });
+
+  // Add event listeners for save and delete
+  document.querySelectorAll(".save-btn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.dataset.id;
+      const newText = document.querySelector(`.offer-text-input[data-id='${id}']`).value;
+      if(newText.trim() === "") return alert("Offer text cannot be empty");
+      await db.collection("offers").doc(id).update({ text: newText });
+      alert("Offer updated!");
+      loadOffers();
+    });
+  });
+
+  document.querySelectorAll(".delete-btn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      if(confirm("Are you sure to delete this offer?")){
+        const id = btn.dataset.id;
+        await db.collection("offers").doc(id).delete();
+        loadOffers();
+      }
+    });
+  });
+}
+
+// Add new offer
+addOfferBtn.addEventListener("click", async ()=>{
+  const text = offerTextInput.value.trim();
+  if(text==="") return alert("Offer text cannot be empty");
+  await db.collection("offers").add({ text, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  offerTextInput.value = "";
+  loadOffers();
+});
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+  e.preventDefault();
+  if(confirm("Are you sure you want to log out?")){
+    localStorage.removeItem("loggedInUser");
+    window.location.href="adminlogin.html";
+  }
+});
+
+loadOffers();
+</script>
+</body>
+</html>
